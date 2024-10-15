@@ -20,7 +20,6 @@ function App() {
   const updateToolMetadata = (toolMetadata: ToolMetadata) => {
     setToolMetadata(toolMetadata);
     OBR.tool.setMetadata(TOOL_ID, toolMetadata);
-    console.log(toolMetadata);
   };
 
   const [gridScale, setGridScale] = useState<GridScale>();
@@ -52,7 +51,7 @@ function App() {
       />
       <div className="flex h-full flex-col">
         <Label name="Opacity" htmlFor={"slider"} />
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex flex-col items-center">
           <div className="min-w-12 text-center">{`${toolMetadata.opacity}%`}</div>
           <Slider
             id="slider"
