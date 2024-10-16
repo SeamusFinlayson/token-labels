@@ -1,10 +1,10 @@
 {
   "name": "Token Auras",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 1,
   "author": "Seamus Finlayson",
   "homepage_url": "https://github.com/SeamusFinlayson/",
-  "icon": "/logo.png",
+  "icon": "/sun.svg",
   "background_url": "/src/background/background.html",
   "description": "Auras, auras, come get your auras!"
 }

@@ -1,6 +1,12 @@
-import OBR, { buildShape, isImage, Image } from "@owlbear-rodeo/sdk";
-import { TOOL_ID, MODE_ID, POPOVER_ID } from "../ids";
+import OBR, { buildShape, isImage } from "@owlbear-rodeo/sdk";
+import { TOOL_ID, MODE_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata } from "../types";
+import {
+  closePopover,
+  createPopover,
+  getImageBounds,
+  switchToDefaultTool,
+} from "../utils";
 export const icon = new URL(
   "../assets/sun.svg#icon",
   import.meta.url,
@@ -8,7 +14,12 @@ export const icon = new URL(
 
 OBR.onReady(async () => {
   printVersionToConsole();
-  start();
+
+  createTool();
+  createMode();
+
+  handleActiveTool();
+  handleSceneClose();
 });
 
 async function printVersionToConsole() {
@@ -17,19 +28,6 @@ async function printVersionToConsole() {
     .then((json) =>
       console.log(json["name"] + " - version: " + json["version"]),
     );
-}
-
-async function start() {
-  createTool();
-  createMode();
-  handleActiveToolChange();
-}
-
-function handleActiveToolChange() {
-  OBR.tool.onToolChange((id) => {
-    if (id === TOOL_ID) createPopover();
-    else closePopover();
-  });
 }
 
 function createTool() {
@@ -41,6 +39,10 @@ function createTool() {
         label: "Auras",
       },
     ],
+    onClick: () => {
+      createPopover();
+      return true;
+    },
     defaultMetadata: defaultToolMetadata,
   });
 }
@@ -115,44 +117,22 @@ function createMode() {
       }
     },
     preventDrag: {
-      target: [
-        { key: "locked", value: true, operator: "!=", coordinator: "||" },
-        { key: "image", value: undefined, operator: "!=" },
-        {
-          key: "layer",
-          value: "CHARACTER",
-          operator: "!=",
-        },
-        {
-          key: "layer",
-          value: "PROP",
-          operator: "!=",
-        },
-        { key: "layer", value: "MOUNT", operator: "!=" },
-      ],
-      // dragging: true,
+      dragging: true,
     },
   });
 }
 
-function createPopover() {
-  OBR.popover.open({
-    id: POPOVER_ID,
-    url: "/",
-    width: 282,
-    height: 200,
-    anchorOrigin: { horizontal: "CENTER", vertical: "TOP" },
-    disableClickAway: true,
+async function handleActiveTool() {
+  if ((await OBR.tool.getActiveTool()) === TOOL_ID) createPopover();
+  OBR.tool.onToolChange((id) => {
+    if (id === TOOL_ID) createPopover();
+    else closePopover();
   });
 }
 
-function closePopover() {
-  OBR.popover.close(POPOVER_ID);
-}
-
-function getImageBounds(item: Image, dpi: number) {
-  const dpiScale = dpi / item.grid.dpi;
-  const width = item.image.width * dpiScale * item.scale.x;
-  const height = item.image.height * dpiScale * item.scale.y;
-  return { width, height };
+async function handleSceneClose() {
+  if (!(await OBR.scene.isReady())) switchToDefaultTool();
+  OBR.scene.onReadyChange((ready) => {
+    if (!ready) switchToDefaultTool();
+  });
 }

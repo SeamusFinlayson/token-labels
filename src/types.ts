@@ -17,6 +17,6 @@ export function isToolMetadata(value: unknown): value is ToolMetadata {
 
 export const defaultToolMetadata: ToolMetadata = {
   radius: 3,
-  opacity: 10,
+  opacity: 20,
   color: colors[0],
 };

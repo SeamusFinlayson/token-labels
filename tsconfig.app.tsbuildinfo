@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/Slider.tsx","./src/colors.ts","./src/getPluginId.ts","./src/ids.ts","./src/main.tsx","./src/types.ts","./src/utils.ts","./src/vite-env.d.ts","./src/background/background.ts"],"version":"5.6.3"}
+{"root":["./src/colors.ts","./src/getPluginId.ts","./src/ids.ts","./src/types.ts","./src/utils.ts","./src/vite-env.d.ts","./src/background/background.ts","./src/components/Slider.tsx","./src/menu/App.tsx","./src/menu/main.tsx"],"version":"5.6.3"}
