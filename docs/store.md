@@ -1,8 +1,16 @@
-# Token Auras
-
-![token_auras_hero_image](https://github.com/user-attachments/assets/ae285b96-b2c2-45c9-9de5-9eb8faaf8e89)
-
-Install link: https://token-auras.onrender.com/manifest.json
+---
+title: Token Auras
+description: Quickly apply auras to tokens
+author: Seamus Finlayson
+image: https://github.com/user-attachments/assets/ae285b96-b2c2-45c9-9de5-9eb8faaf8e89
+icon: https://token-auras.onrender.com/sun.svg
+tags:
+  - tool
+  - drawing
+  - combat
+manifest: https://token-auras.onrender.com/manifest.json
+learn-more: https://github.com/SeamusFinlayson/token-auras
+---
 
 _Quickly apply auras to tokens_
 
