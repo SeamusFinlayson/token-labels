@@ -27,32 +27,30 @@ export function getImageBounds(item: Image, sceneDpi: number) {
   return { width, height };
 }
 
-export function getImageCenter(target: Image, sceneDpi: number) {
-  console.log(Math2.multiply(target.grid.offset, 1));
-
+export function getImageCenter(image: Image, sceneDpi: number) {
   // Image center with respect to image center
   let imageCenter = { x: 0, y: 0 };
 
-  // Image center with respect to image corner
+  // Find image center with respect to image top left corner
   imageCenter = Math2.add(
     imageCenter,
     Math2.multiply(
       {
-        x: target.image.width,
-        y: target.image.height,
+        x: image.image.width,
+        y: image.image.height,
       },
       0.5,
     ),
   );
 
   // Find image center with respect to item position
-  imageCenter = Math2.subtract(imageCenter, target.grid.offset);
-  imageCenter = Math2.multiply(imageCenter, sceneDpi / target.grid.dpi); // scale switch from image to scene
-  imageCenter = Math2.multiply(imageCenter, target.scale);
-  imageCenter = Math2.rotate(imageCenter, { x: 0, y: 0 }, target.rotation);
+  imageCenter = Math2.subtract(imageCenter, image.grid.offset);
+  imageCenter = Math2.multiply(imageCenter, sceneDpi / image.grid.dpi); // scale switch from image to scene
+  imageCenter = Math2.multiply(imageCenter, image.scale);
+  imageCenter = Math2.rotate(imageCenter, { x: 0, y: 0 }, image.rotation);
 
   // find image center with respect to world
-  imageCenter = Math2.add(imageCenter, target.position);
+  imageCenter = Math2.add(imageCenter, image.position);
 
   return imageCenter;
 }
