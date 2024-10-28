@@ -5,6 +5,7 @@ import {
   closePopover,
   createPopover,
   getImageBounds,
+  getImageCenter,
   switchToDefaultTool,
 } from "../utils";
 export const icon = new URL(
@@ -98,12 +99,13 @@ function createMode() {
       ) {
         const sceneDpi = await OBR.scene.grid.getDpi();
         const { width } = getImageBounds(target, sceneDpi);
+
         const metadata = await OBR.tool.getMetadata(TOOL_ID);
         if (!isToolMetadata(metadata)) throw "Error bad metadata";
         const aura = buildShape()
           .id(`${target.id}-aura`)
           .shapeType("CIRCLE")
-          .position(target.position)
+          .position(getImageCenter(target, sceneDpi))
           .attachedTo(target.id)
           .width(width + sceneDpi * metadata.radius * 2)
           .height(width + sceneDpi * metadata.radius * 2)
@@ -111,7 +113,7 @@ function createMode() {
           .fillOpacity(metadata.opacity / 100)
           .strokeWidth(0)
           .locked(true)
-          .disableAttachmentBehavior(["SCALE"])
+          // .disableAttachmentBehavior(["SCALE"])
           .build();
         OBR.scene.items.addItems([aura]);
       }
