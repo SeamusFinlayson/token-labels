@@ -40,8 +40,6 @@ export function App() {
   if (toolMetadata === undefined || gridScale === undefined)
     return <div className="h-full bg-mirage-200 dark:bg-mirage-900/60" />;
 
-  console.log(toolMetadata);
-
   return (
     <div className="h-full overflow-y-clip bg-mirage-200 text-black/[0.87] dark:bg-mirage-800 dark:text-white">
       <div className="flex h-full flex-col gap-2 p-4 pb-3">
@@ -98,18 +96,18 @@ export function App() {
             <div className="mt-1 grid h-full grid-cols-1 items-stretch justify-items-stretch gap-2 text-black/[0.54] dark:text-white">
               <Button
                 onClick={() =>
-                  updateToolMetadata({ ...toolMetadata, shape: "SQUARE" })
-                }
-              >
-                {toolMetadata.shape === "SQUARE" ? <SquareCheck /> : <Square />}
-              </Button>
-
-              <Button
-                onClick={() =>
                   updateToolMetadata({ ...toolMetadata, shape: "CIRCLE" })
                 }
               >
                 {toolMetadata.shape === "CIRCLE" ? <CircleCheck /> : <Circle />}
+              </Button>
+
+              <Button
+                onClick={() =>
+                  updateToolMetadata({ ...toolMetadata, shape: "SQUARE" })
+                }
+              >
+                {toolMetadata.shape === "SQUARE" ? <SquareCheck /> : <Square />}
               </Button>
             </div>
           </div>
