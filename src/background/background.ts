@@ -1,4 +1,4 @@
-import OBR, { buildShape, isImage } from "@owlbear-rodeo/sdk";
+import OBR, { buildShape, isImage, Math2 } from "@owlbear-rodeo/sdk";
 import { TOOL_ID, MODE_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata } from "../types";
 import {
@@ -101,20 +101,42 @@ function createMode() {
         const { width } = getImageBounds(target, sceneDpi);
 
         const metadata = await OBR.tool.getMetadata(TOOL_ID);
-        if (!isToolMetadata(metadata)) throw "Error bad metadata";
-        const aura = buildShape()
-          .id(`${target.id}-aura`)
-          .shapeType("CIRCLE")
-          .position(getImageCenter(target, sceneDpi))
-          .attachedTo(target.id)
-          .width(width + sceneDpi * metadata.radius * 2)
-          .height(width + sceneDpi * metadata.radius * 2)
-          .fillColor(metadata.color)
-          .fillOpacity(metadata.opacity / 100)
-          .strokeWidth(0)
-          .locked(true)
-          // .disableAttachmentBehavior(["SCALE"])
-          .build();
+        const toolMetadata = { ...defaultToolMetadata, ...metadata };
+        if (!isToolMetadata(toolMetadata)) throw "Error bad metadata";
+        const aura =
+          toolMetadata.shape === "CIRCLE"
+            ? buildShape()
+                .id(`${target.id}-aura`)
+                .shapeType("CIRCLE")
+                .position(getImageCenter(target, sceneDpi))
+                .attachedTo(target.id)
+                .width(width + sceneDpi * toolMetadata.radius * 2)
+                .height(width + sceneDpi * toolMetadata.radius * 2)
+                .fillColor(toolMetadata.color)
+                .fillOpacity(toolMetadata.opacity / 100)
+                .strokeWidth(0)
+                .locked(true)
+                // .disableAttachmentBehavior(["SCALE"])
+                .build()
+            : buildShape()
+                .id(`${target.id}-aura`)
+                .shapeType("RECTANGLE")
+                .position(
+                  Math2.subtract(getImageCenter(target, sceneDpi), {
+                    x: width / 2 + sceneDpi * toolMetadata.radius,
+                    y: width / 2 + sceneDpi * toolMetadata.radius,
+                  }),
+                )
+                .attachedTo(target.id)
+                .disableAttachmentBehavior(["ROTATION"])
+                .width(width + sceneDpi * toolMetadata.radius * 2)
+                .height(width + sceneDpi * toolMetadata.radius * 2)
+                .fillColor(toolMetadata.color)
+                .fillOpacity(toolMetadata.opacity / 100)
+                .strokeWidth(0)
+                .locked(true)
+                // .disableAttachmentBehavior(["SCALE"])
+                .build();
         OBR.scene.items.addItems([aura]);
       }
     },

@@ -60,7 +60,7 @@ export async function createPopover() {
     id: POPOVER_ID,
     url: `/src/menu/menu.html?themeMode=${(await OBR.theme.getTheme()).mode}`,
     width: 282,
-    height: 236,
+    height: 270,
     anchorOrigin: { horizontal: "CENTER", vertical: "TOP" },
     anchorElementId: TOOL_ID,
     disableClickAway: true,
