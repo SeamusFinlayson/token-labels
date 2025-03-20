@@ -132,7 +132,6 @@ function createMode() {
         let index = 0;
         for (const attachment of attachments) {
           if (attachment.id.startsWith(`${target.id}-label`)) {
-            console.log(attachment.id);
             attachment.position = getLabelPosition(
               target.position,
               width,
