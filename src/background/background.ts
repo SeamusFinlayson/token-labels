@@ -1,17 +1,37 @@
-import OBR, { buildShape, isImage, Math2 } from "@owlbear-rodeo/sdk";
+import OBR, {
+  AttachmentBehavior,
+  buildLabel,
+  isImage,
+  Item,
+  Math2,
+  Vector2,
+} from "@owlbear-rodeo/sdk";
 import { TOOL_ID, MODE_ID } from "../ids";
-import { defaultToolMetadata, isToolMetadata } from "../types";
+import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
 import {
   closePopover,
   createPopover,
   getImageBounds,
-  getImageCenter,
   switchToDefaultTool,
 } from "../utils";
 export const icon = new URL(
-  "../assets/sun.svg#icon",
+  "../assets/tags.svg#icon",
   import.meta.url,
 ).toString();
+
+// Constants used in multiple functions
+const FONT_SIZE = 22;
+const FONT = "Roboto, sans-serif";
+const LOCKED = false;
+const DISABLE_HIT = false;
+const BACKGROUND_OPACITY = 0.9;
+const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
+  "ROTATION",
+  "VISIBLE",
+  "COPY",
+  "SCALE",
+  // "POSITION",
+];
 
 OBR.onReady(async () => {
   printVersionToConsole();
@@ -37,7 +57,7 @@ function createTool() {
     icons: [
       {
         icon: icon,
-        label: "Auras",
+        label: "Condition Labels",
       },
     ],
     onClick: () => {
@@ -54,7 +74,7 @@ function createMode() {
     icons: [
       {
         icon: icon,
-        label: "Auras Applicator",
+        label: "Condition Label Applicator",
         filter: {
           activeTools: [TOOL_ID],
         },
@@ -98,47 +118,57 @@ function createMode() {
           target.layer === "PROP")
       ) {
         const sceneDpi = await OBR.scene.grid.getDpi();
-        const { width } = getImageBounds(target, sceneDpi);
+        const { width, height } = getImageBounds(target, sceneDpi);
 
         const metadata = await OBR.tool.getMetadata(TOOL_ID);
         const toolMetadata = { ...defaultToolMetadata, ...metadata };
         if (!isToolMetadata(toolMetadata)) throw "Error bad metadata";
-        const aura =
-          toolMetadata.shape === "CIRCLE"
-            ? buildShape()
-                .id(`${target.id}-aura`)
-                .shapeType("CIRCLE")
-                .position(getImageCenter(target, sceneDpi))
-                .attachedTo(target.id)
-                .width(width + sceneDpi * toolMetadata.radius * 2)
-                .height(width + sceneDpi * toolMetadata.radius * 2)
-                .fillColor(toolMetadata.color)
-                .fillOpacity(toolMetadata.opacity / 100)
-                .strokeWidth(0)
-                .locked(true)
-                // .disableAttachmentBehavior(["SCALE"])
-                .build()
-            : buildShape()
-                .id(`${target.id}-aura`)
-                .shapeType("RECTANGLE")
-                .position(
-                  Math2.subtract(getImageCenter(target, sceneDpi), {
-                    x: width / 2 + sceneDpi * toolMetadata.radius,
-                    y: width / 2 + sceneDpi * toolMetadata.radius,
-                  }),
-                )
-                .attachedTo(target.id)
-                .disableAttachmentBehavior(["ROTATION"])
-                .width(width + sceneDpi * toolMetadata.radius * 2)
-                .height(width + sceneDpi * toolMetadata.radius * 2)
-                .fillColor(toolMetadata.color)
-                .fillOpacity(toolMetadata.opacity / 100)
-                .strokeWidth(0)
-                .locked(true)
-                // .disableAttachmentBehavior(["SCALE"])
-                .build();
-        OBR.scene.items.addItems([aura]);
-      }
+        if (toolMetadata.condition === "") return;
+
+        const attachments = await OBR.scene.items.getItemAttachments([
+          target.id,
+        ]);
+        const labelAttachments: Item[] = [];
+        let index = 0;
+        for (const attachment of attachments) {
+          if (attachment.id.startsWith(`${target.id}-label`)) {
+            console.log(attachment.id);
+            attachment.position = getLabelPosition(
+              target.position,
+              width,
+              height,
+              index,
+            );
+            index++;
+            labelAttachments.push(attachment);
+          }
+        }
+
+        const conditionLabel = buildLabel()
+          .maxViewScale(0.8)
+          .minViewScale(0.8)
+          .position(getLabelPosition(target.position, width, height, index))
+          .plainText(toolMetadata.condition)
+          .fontSize(FONT_SIZE)
+          .fontFamily(FONT)
+          .fontWeight(400)
+          .pointerHeight(0)
+          .pointerDirection("LEFT")
+          .attachedTo(target.id)
+          .fillOpacity(0.87)
+          .layer("TEXT")
+          .cornerRadius(sceneDpi / 12)
+          .padding(sceneDpi / 50)
+          .backgroundOpacity(BACKGROUND_OPACITY)
+          .locked(LOCKED)
+          .metadata({})
+          .id(getLabelId(target.id))
+          .visible(target.visible)
+          .disableAttachmentBehavior(DISABLE_ATTACHMENT_BEHAVIORS)
+          .disableHit(DISABLE_HIT)
+          .build();
+        OBR.scene.items.addItems([...labelAttachments, conditionLabel]);
+      } else return true;
     },
     preventDrag: {
       dragging: true,
@@ -150,7 +180,10 @@ async function handleActiveTool() {
   if ((await OBR.tool.getActiveTool()) === TOOL_ID) createPopover();
   OBR.tool.onToolChange((id) => {
     if (id === TOOL_ID) createPopover();
-    else closePopover();
+    else {
+      OBR.tool.setMetadata(TOOL_ID, { condition: "" } as ToolMetadata);
+      closePopover();
+    }
   });
 }
 
@@ -158,5 +191,21 @@ async function handleSceneClose() {
   if (!(await OBR.scene.isReady())) switchToDefaultTool();
   OBR.scene.onReadyChange((ready) => {
     if (!ready) switchToDefaultTool();
+  });
+}
+
+function getLabelId(itemId: string): string {
+  return `${itemId}-label-${Date.now()}`;
+}
+
+function getLabelPosition(
+  targetPosition: Vector2,
+  width: number,
+  height: number,
+  index: number,
+): Vector2 {
+  return Math2.add(targetPosition, {
+    x: -width / 2,
+    y: -height / 2 + 20 + index * 34,
   });
 }

@@ -3,7 +3,7 @@ title: Token Auras
 description: Quickly apply auras to tokens
 author: Seamus Finlayson
 image: https://github.com/user-attachments/assets/ae285b96-b2c2-45c9-9de5-9eb8faaf8e89
-icon: https://token-auras.onrender.com/sun.svg
+icon: https://token-auras.onrender.com/tags.svg
 tags:
   - tool
   - drawing

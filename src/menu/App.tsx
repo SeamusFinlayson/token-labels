@@ -1,21 +1,54 @@
-import { useEffect, useState } from "react";
-import Slider from "../components/Slider";
-import { switchToDefaultTool } from "../utils";
-import OBR, { GridScale } from "@owlbear-rodeo/sdk";
+import { useEffect, useRef, useState } from "react";
+import OBR from "@owlbear-rodeo/sdk";
 import { TOOL_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
-import { ColorPicker } from "../components/ColorPicker";
-import { Label } from "../components/Label";
-import { Input } from "../components/Input";
-import { Circle, CircleCheck, Square, SquareCheck } from "lucide-react";
+import {
+  setPopoverHeight,
+  setPopoverWidth,
+  switchToDefaultTool,
+} from "../utils";
 import { Button } from "../components/Button";
+import { ScrollArea } from "../components/scrollArea";
+import { ChevronDown, ChevronUp, Eraser, X } from "lucide-react";
+
+const conditionHints = [
+  "Bleeding",
+  "Bleeding (EoT)",
+  "Bleeding (SE)",
+  "Dazed",
+  "Dazed (EoT)",
+  "Dazed (SE)",
+  "Frightened",
+  "Frightened (EoT)",
+  "Frightened (SE)",
+  "Grabbed",
+  "Grabbed (EoT)",
+  "Grabbed (SE)",
+  "Prone",
+  "Prone (EoT)",
+  "Prone (SE)",
+  "Restrained",
+  "Restrained (EoT)",
+  "Restrained (SE)",
+  "Slowed",
+  "Slowed (EoT)",
+  "Slowed (SE)",
+  "Taunted",
+  "Taunted (EoT)",
+  "Taunted (SE)",
+  "Weakened",
+  "Weakened (EoT)",
+  "Weakened (SE)",
+];
 
 export function App() {
   const [toolMetadata, setToolMetadata] = useState<ToolMetadata>();
   useEffect(() => {
     OBR.tool.getMetadata(TOOL_ID).then((value) => {
-      if (isToolMetadata(value)) setToolMetadata(value);
-      else setToolMetadata(defaultToolMetadata);
+      if (isToolMetadata(value)) {
+        setCondition(value.condition);
+        setToolMetadata(value);
+      } else setToolMetadata(defaultToolMetadata);
     });
   }, []);
 
@@ -25,102 +58,160 @@ export function App() {
     OBR.tool.setMetadata(TOOL_ID, toolMetadata);
   };
 
-  const [gridScale, setGridScale] = useState<GridScale>();
+  const [condition, setCondition] = useState("");
+
+  const [expandedHeight, setExpandedHeight] = useState(true);
+  const [expandedWidth, setExpandedWidth] = useState(true);
+  // const [initDone, setInitDone] = useEffect();
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const updateScale = async () => {
-      OBR.scene.grid.getScale().then((value) => {
-        setGridScale(value);
-      });
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key == "Escape" && inputRef.current) {
+        if (document.activeElement !== inputRef.current)
+          inputRef.current.select();
+        else if (condition !== "") {
+          updateToolMetadata({ condition: "" });
+          setCondition("");
+        } else switchToDefaultTool();
+      }
     };
-    updateScale();
-    return OBR.scene.grid.onChange(updateScale);
-  }, []);
+    document.addEventListener("keydown", handleEscape, false);
 
-  if (toolMetadata === undefined || gridScale === undefined)
-    return <div className="h-full bg-mirage-200 dark:bg-mirage-900/60" />;
+    return () => {
+      document.removeEventListener("keydown", handleEscape, false);
+    };
+  }, [inputRef, condition]);
+
+  if (toolMetadata === undefined)
+    return <div className="bg-mirage-200 dark:bg-mirage-900/60 h-full" />;
 
   return (
-    <div className="h-full overflow-y-clip bg-mirage-200 text-black/[0.87] dark:bg-mirage-800 dark:text-white">
-      <div className="flex h-full flex-col gap-2 p-4 pb-3">
-        <div className="flex gap-6">
-          <Input
-            name="Radius"
-            units={gridScale.parsed.unit}
-            parentValue={toolMetadata.radius * gridScale.parsed.multiplier}
-            updateHandler={(value) => {
-              const newRadius = parseFloat(value);
-              updateToolMetadata({
-                ...toolMetadata,
-                radius: Number.isNaN(newRadius)
-                  ? 0
-                  : newRadius / gridScale.parsed.multiplier,
-              });
-            }}
-          />
-          <div className="flex h-full w-full flex-col">
-            <Label name="Opacity" htmlFor={"slider"} />
-            <div className="flex flex-col items-center">
-              <div className="min-w-12 text-center">{`${toolMetadata.opacity}%`}</div>
-              <Slider
-                id="slider"
-                step={5}
-                value={[toolMetadata.opacity]}
-                onValueChange={(value) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    opacity: value[0],
-                  })
-                }
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex h-full gap-4">
-          <div>
-            <Label name="Color" htmlFor="" />
-            <div className="mt-1">
-              <ColorPicker
-                currentColor={toolMetadata.color}
-                setColor={(color) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    color: color,
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div className="flex h-full grow flex-col">
-            <Label name="Shape" htmlFor="" />
-            <div className="mt-1 grid h-full grid-cols-1 items-stretch justify-items-stretch gap-2 text-black/[0.54] dark:text-white">
-              <Button
-                onClick={() =>
-                  updateToolMetadata({ ...toolMetadata, shape: "CIRCLE" })
-                }
-              >
-                {toolMetadata.shape === "CIRCLE" ? <CircleCheck /> : <Circle />}
-              </Button>
-
-              <Button
-                onClick={() =>
-                  updateToolMetadata({ ...toolMetadata, shape: "SQUARE" })
-                }
-              >
-                {toolMetadata.shape === "SQUARE" ? <SquareCheck /> : <Square />}
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-center pt-2">
+    <div className="overflow-clip">
+      <div className="grid place-items-center pt-2">
+        <div className="bg-mirage-900/50 flex gap-2 rounded-full backdrop-blur-2xl">
+          {/* <button className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-white/10">
+            <Settings2 />
+          </button> */}
           <button
-            className="w-full rounded-xl px-3 py-2 text-xs font-medium text-primary shadow-xs outline outline-1 outline-primary/60 transition-all duration-150 hover:bg-primary/10 hover:outline-primary dark:text-primary-dark dark:outline-primary-dark/50 dark:hover:bg-primary-dark/10 dark:hover:outline-primary-dark"
+            className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-white/10"
+            onClick={() => {
+              const newExpanded = !expandedHeight;
+              if (newExpanded) {
+                setPopoverHeight(300);
+                setPopoverWidth(400);
+                setTimeout(() => {
+                  setExpandedHeight(newExpanded);
+                  setExpandedWidth(newExpanded);
+                }, 50);
+              } else {
+                setExpandedHeight(newExpanded);
+                setTimeout(() => {
+                  setPopoverHeight(60);
+                  // setExpandedWidth(newExpanded);
+                  setPopoverWidth(88);
+                }, 150);
+              }
+            }}
+          >
+            {expandedHeight ? <ChevronUp /> : <ChevronDown />}
+          </button>
+          <button
+            className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-white/10"
             onClick={switchToDefaultTool}
           >
-            CLOSE TOOL
+            <X />
           </button>
         </div>
       </div>
+      <div
+        data-expanded-height={expandedHeight}
+        data-expanded-width={expandedWidth}
+        className="flex h-0 w-full flex-col overflow-y-clip text-black/[0.87] transition-[height] duration-150 ease-out data-[expanded-height=true]:h-[252px] dark:text-white"
+      >
+        <div className="bg-mirage-950 mt-2 flex h-12 w-full shrink-0 items-center gap-2 rounded-t-2xl pr-1 pl-4">
+          <input
+            ref={inputRef}
+            className="h-full w-full outline-hidden"
+            placeholder="Type condition..."
+            value={condition}
+            onChange={(e) => {
+              // filterConditions(e.target.value, "Winded (SE)");
+              updateToolMetadata({ condition: e.target.value });
+              setCondition(e.target.value);
+            }}
+            autoFocus
+          />
+          {condition !== "" && (
+            <button
+              onClick={() => {
+                setCondition("");
+                updateToolMetadata({ condition: "" });
+                inputRef.current?.focus();
+              }}
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl hover:bg-white/10"
+            >
+              <Eraser />
+            </button>
+          )}
+        </div>
+
+        <ScrollArea
+          type="hover"
+          className="bg-mirage-200 dark:bg-mirage-800 h-full"
+        >
+          <div className="flex flex-wrap gap-2 p-2">
+            {conditionHints
+              .filter((conditionHint) =>
+                filterConditions(condition, conditionHint),
+              )
+              .sort((a, b) => sortConditions(condition, a, b))
+              .map((conditionHint) => (
+                <Button
+                  className="text-sm text-nowrap"
+                  key={conditionHint}
+                  onClick={() => {
+                    updateToolMetadata({ condition: conditionHint });
+
+                    setCondition(conditionHint);
+                  }}
+                >
+                  {conditionHint}
+                </Button>
+              ))}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
+}
+
+function filterConditions(search: string, text: string): boolean {
+  search = search.toLowerCase();
+  text = text.toLowerCase();
+  let isMatch = true;
+  for (const char of search) {
+    const charIndex = text.search(char.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&"));
+    if (charIndex === -1) {
+      isMatch = false;
+      break;
+    }
+    text = text.substring(charIndex);
+  }
+  return isMatch;
+}
+
+function sortConditions(search: string, a: string, b: string): number {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+  for (const char of search) {
+    const charRegExp = char.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&");
+    const aIndex = a.search(charRegExp);
+    const bIndex = b.search(charRegExp);
+    if (aIndex < 0 || bIndex < 0) {
+      return 0;
+    } else if (aIndex !== bIndex) return aIndex - bIndex;
+  }
+  return 0;
 }

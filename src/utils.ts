@@ -59,14 +59,23 @@ export async function createPopover() {
   OBR.popover.open({
     id: POPOVER_ID,
     url: `/src/menu/menu.html?themeMode=${(await OBR.theme.getTheme()).mode}`,
-    width: 282,
-    height: 270,
+    width: 400,
+    height: 300,
     anchorOrigin: { horizontal: "CENTER", vertical: "TOP" },
+    marginThreshold: 0,
     anchorElementId: TOOL_ID,
     disableClickAway: true,
+    hidePaper: true,
   });
 }
 
 export function closePopover() {
   OBR.popover.close(POPOVER_ID);
+}
+
+export function setPopoverHeight(height: number) {
+  OBR.popover.setHeight(POPOVER_ID, height);
+}
+export function setPopoverWidth(width: number) {
+  OBR.popover.setWidth(POPOVER_ID, width);
 }
