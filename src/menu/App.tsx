@@ -114,7 +114,7 @@ export function App() {
         </div>
         <div className="flex justify-center pt-2">
           <button
-            className="w-full rounded-xl px-3 py-2 text-xs font-medium text-primary shadow-sm outline outline-1 outline-primary/60 transition-all duration-150 hover:bg-primary/10 hover:outline-primary dark:text-primary-dark dark:outline-primary-dark/50 dark:hover:bg-primary-dark/10 dark:hover:outline-primary-dark"
+            className="w-full rounded-xl px-3 py-2 text-xs font-medium text-primary shadow-xs outline outline-1 outline-primary/60 transition-all duration-150 hover:bg-primary/10 hover:outline-primary dark:text-primary-dark dark:outline-primary-dark/50 dark:hover:bg-primary-dark/10 dark:hover:outline-primary-dark"
             onClick={switchToDefaultTool}
           >
             CLOSE TOOL

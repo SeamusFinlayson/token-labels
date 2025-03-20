@@ -1,24 +1,63 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap')
+layer(base);
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import 'tailwindcss';
 
-  color: rgba(255, 255, 255, 0.87);
+@custom-variant dark (&:is(.dark *));
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  --color-mirage-50: #f4f5f9;
+  --color-mirage-100: #eaedf5;
+  --color-mirage-200: #dde1ee;
+  --color-mirage-300: #c1c8e0;
+  --color-mirage-400: #898fa7;
+  --color-mirage-500: #6a708d;
+  --color-mirage-600: #555974;
+  --color-mirage-700: #464a5e;
+  --color-mirage-800: #3d4051;
+  --color-mirage-900: #2d3143;
+  --color-mirage-940: #24283b;
+  --color-mirage-950: #222639;
+
+  --color-primary: #9966ff;
+  --color-primary-dark: #bb99ff;
 }
 
-html,
-body,
-label {
-  font-family: "Roboto", sans-serif;
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer base {
+  :root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color: rgba(255, 255, 255, 0.87);
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  label {
+    font-family: 'Roboto', sans-serif;
+  }
+}

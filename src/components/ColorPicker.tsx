@@ -14,7 +14,7 @@ export function ColorPicker({
       <button
         key={color}
         onClick={() => setColor(color)}
-        className="group flex h-[34px] w-[34px] items-center justify-center outline-none"
+        className="group flex h-[34px] w-[34px] items-center justify-center outline-hidden"
       >
         <div
           className={cn(

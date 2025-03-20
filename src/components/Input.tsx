@@ -43,7 +43,7 @@ export function Input({
       <div className="flex h-full items-end">
         <div className="inline-flex w-24 items-center rounded-xl leading-[1.4375rem] outline outline-1 outline-mirage-950/35 focus-within:outline-2 focus-within:outline-primary hover:outline-mirage-950/[0.87] hover:focus-within:outline-primary dark:outline-mirage-50/20 dark:focus-within:outline-primary-dark dark:hover:outline-mirage-50/75 dark:hover:focus-within:outline-primary-dark">
           <input
-            className="w-full bg-transparent py-[7.5px] pl-3 outline-none"
+            className="w-full bg-transparent py-[7.5px] pl-3 outline-hidden"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onBlur={(e) => {
