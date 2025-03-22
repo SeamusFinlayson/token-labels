@@ -10,7 +10,7 @@ import { TOOL_ID, MODE_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
 import {
   closePopover,
-  createPopover,
+  createPopover as openPopover,
   getImageBounds,
   switchToDefaultTool,
 } from "../utils";
@@ -61,7 +61,7 @@ function createTool() {
       },
     ],
     onClick: () => {
-      createPopover();
+      openPopover();
       return true;
     },
     defaultMetadata: defaultToolMetadata,
@@ -180,9 +180,9 @@ function createMode() {
 }
 
 async function handleActiveTool() {
-  if ((await OBR.tool.getActiveTool()) === TOOL_ID) createPopover();
+  if ((await OBR.tool.getActiveTool()) === TOOL_ID) openPopover();
   OBR.tool.onToolChange((id) => {
-    if (id === TOOL_ID) createPopover();
+    if (id === TOOL_ID) openPopover();
     else {
       OBR.tool.setMetadata(TOOL_ID, { condition: "" } as ToolMetadata);
       closePopover();
