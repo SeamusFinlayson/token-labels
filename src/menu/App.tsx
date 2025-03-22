@@ -11,42 +11,149 @@ import { Button } from "../components/Button";
 import { ScrollArea } from "../components/scrollArea";
 import { ChevronDown, ChevronUp, Eraser, X } from "lucide-react";
 
-const conditionHints = [
-  "Bleeding",
-  "Bleeding (EoT)",
-  "Bleeding (SE)",
-  "Dazed",
-  "Dazed (EoT)",
-  "Dazed (SE)",
-  "Frightened",
-  "Frightened (EoT)",
-  "Frightened (SE)",
-  "Grabbed",
-  "Grabbed (EoT)",
-  "Grabbed (SE)",
-  "Prone",
-  "Prone (EoT)",
-  "Prone (SE)",
-  "Restrained",
-  "Restrained (EoT)",
-  "Restrained (SE)",
-  "Slowed",
-  "Slowed (EoT)",
-  "Slowed (SE)",
-  "Taunted",
-  "Taunted (EoT)",
-  "Taunted (SE)",
-  "Weakened",
-  "Weakened (EoT)",
-  "Weakened (SE)",
-];
+interface Condition {
+  [string: string]: Condition;
+}
+
+const durationModifiers: Condition = {
+  "(EoT)": { [String.fromCharCode(0x0031, 0xfe0f, 0x20e3)]: {} },
+  "(SE)": { [String.fromCharCode(0xd83c, 0xdfb2)]: {} },
+};
+
+const conditionsTree: Condition = {
+  Bleeding: {
+    [String.fromCharCode(0xd83e, 0xde78)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Dazed: {
+    [String.fromCharCode(0xd83d, 0xde35) +
+    String.fromCharCode(0x200d) +
+    String.fromCharCode(0xd83d, 0xdcab)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Frightened: {
+    [String.fromCharCode(0xd83d, 0xde31)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Grabbed: {
+    [String.fromCharCode(0xd83e, 0xdd1c)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Prone: {
+    [String.fromCharCode(0xd83e, 0xdda6)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Restrained: {
+    [String.fromCharCode(0x26d3, 0xfe0f)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Slowed: {
+    [String.fromCharCode(0xd83d, 0xdc0c)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Taunted: {
+    [String.fromCharCode(0xd83e, 0xdef5)]: durationModifiers,
+    ...durationModifiers,
+  },
+  Weakened: {
+    [String.fromCharCode(0xd83d, 0xde29)]: durationModifiers,
+    ...durationModifiers,
+  },
+};
+
+// const conditionHints = [
+//   "Blinded",
+//   "Charmed",
+//   "Dead",
+//   "Deafened",
+//   "Dying",
+//   "Frightened",
+//   "Grappled",
+//   "Incapacitated",
+//   "Invisible",
+//   "Paralyzed",
+//   "Petrified",
+//   "Poisoned",
+//   "Prone",
+//   "Restrained",
+//   "Stunned",
+//   "Stable",
+//   "Unconscious",
+//   "Exhaustion",
+// ];
+
+// const conditionHints = [
+//   "Blind",
+//   "Concentrating",
+//   "Charmed",
+//   "Deafened",
+//   "Exhausted",
+//   "Frightened",
+//   "Grappled",
+//   "Incapacitated",
+//   "Invisible",
+//   "Paralyzed",
+//   "Petrified",
+//   "Poisoned",
+//   "Prone",
+//   "Restrained",
+//   "Stunned",
+//   "Unconscious",
+//   "Stabilized",
+//   "Dead",
+//   "Advantage",
+//   "Baned",
+//   "Bleeding Out",
+//   "Blessed",
+//   "Disadvantage",
+//   "Dodge",
+//   "Flying",
+//   "Hasted",
+//   "Hexblade's Curse",
+//   "Hexed",
+//   "Holding Action",
+//   "Hunter's Mark",
+//   "Inspired",
+//   "Mage Armor",
+//   "Raging",
+//   "Reaction Used",
+//   "Armor of Agathys",
+//   "Blink",
+//   "Blur",
+//   "Confused",
+//   "Insightful Fighting",
+//   "Mirror Image",
+//   "On Fire",
+//   "Possessed",
+//   "Sanctuary",
+//   "Shield of Faith",
+//   "Spirit Guardian",
+//   "Summoning",
+//   "Symbiotic Entity",
+//   "Shifted",
+//   "Truesight",
+//   "Warding Bond",
+//   "Ancestral Protectors",
+//   "Cause of Fear",
+//   "Compelled Duel",
+//   "Divine Favor",
+//   "Highlighted",
+//   "Slayer's Prey",
+//   "Shell Defense",
+//   "Bear's Endurance",
+//   "Bull's Strength",
+//   "Cat's Grace",
+//   "Eagle's Splendor",
+//   "Fox's Cunning",
+//   "Owl's Wisdom",
+// ];
 
 export function App() {
   const [toolMetadata, setToolMetadata] = useState<ToolMetadata>();
   useEffect(() => {
     OBR.tool.getMetadata(TOOL_ID).then((value) => {
       if (isToolMetadata(value)) {
-        setCondition(value.condition);
+        setInputValue(value.condition);
         setToolMetadata(value);
       } else setToolMetadata(defaultToolMetadata);
     });
@@ -58,7 +165,7 @@ export function App() {
     OBR.tool.setMetadata(TOOL_ID, toolMetadata);
   };
 
-  const [condition, setCondition] = useState("");
+  const [inputValue, setInputValue] = useState("");
 
   const [expandedHeight, setExpandedHeight] = useState(true);
   const [expandedWidth, setExpandedWidth] = useState(true);
@@ -71,9 +178,9 @@ export function App() {
       if (e.key == "Escape" && inputRef.current) {
         if (document.activeElement !== inputRef.current)
           inputRef.current.select();
-        else if (condition !== "") {
+        else if (inputValue !== "") {
           updateToolMetadata({ condition: "" });
-          setCondition("");
+          setInputValue("");
         } else switchToDefaultTool();
       }
     };
@@ -82,10 +189,29 @@ export function App() {
     return () => {
       document.removeEventListener("keydown", handleEscape, false);
     };
-  }, [inputRef, condition]);
+  }, [inputRef, inputValue]);
 
   if (toolMetadata === undefined)
     return <div className="bg-mirage-200 dark:bg-mirage-900/60 h-full" />;
+
+  let conditionsSubTree = conditionsTree;
+  const conditionKeys: string[] = [];
+  let lowCaseSearchString = inputValue.trim().toLowerCase();
+  do {
+    const keyIndex = Object.keys(conditionsSubTree).findIndex((value) =>
+      lowCaseSearchString.startsWith(value.toLowerCase()),
+    );
+    if (keyIndex === -1) break;
+    const key = Object.keys(conditionsSubTree)[keyIndex];
+    conditionKeys.push(key);
+
+    lowCaseSearchString = lowCaseSearchString.substring(key.length).trim();
+    conditionsSubTree = conditionsSubTree[key];
+  } while (Object.keys(conditionsSubTree).length > 0);
+
+  const conditionHints = Object.keys(conditionsSubTree).map((value) =>
+    [...conditionKeys, value].join(" "),
+  );
 
   return (
     <div className="overflow-clip">
@@ -135,18 +261,19 @@ export function App() {
             ref={inputRef}
             className="h-full w-full outline-hidden"
             placeholder="Type condition..."
-            value={condition}
+            value={inputValue}
             onChange={(e) => {
               // filterConditions(e.target.value, "Winded (SE)");
               updateToolMetadata({ condition: e.target.value });
-              setCondition(e.target.value);
+              setInputValue(e.target.value);
             }}
             autoFocus
           />
-          {condition !== "" && (
+          {inputValue !== "" && (
             <button
+              tabIndex={-1}
               onClick={() => {
-                setCondition("");
+                setInputValue("");
                 updateToolMetadata({ condition: "" });
                 inputRef.current?.focus();
               }}
@@ -164,17 +291,17 @@ export function App() {
           <div className="flex flex-wrap gap-2 p-2">
             {conditionHints
               .filter((conditionHint) =>
-                filterConditions(condition, conditionHint),
+                filterConditions(inputValue, conditionHint),
               )
-              .sort((a, b) => sortConditions(condition, a, b))
+              .sort((a, b) => sortConditions(inputValue, a, b))
               .map((conditionHint) => (
                 <Button
-                  className="text-sm text-nowrap"
+                  className="text-nowrap"
                   key={conditionHint}
                   onClick={() => {
                     updateToolMetadata({ condition: conditionHint });
-
-                    setCondition(conditionHint);
+                    setInputValue(conditionHint);
+                    inputRef.current?.focus();
                   }}
                 >
                   {conditionHint}
@@ -197,7 +324,7 @@ function filterConditions(search: string, text: string): boolean {
       isMatch = false;
       break;
     }
-    text = text.substring(charIndex);
+    text = text.substring(charIndex + 1);
   }
   return isMatch;
 }

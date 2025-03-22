@@ -123,7 +123,6 @@ function createMode() {
         const metadata = await OBR.tool.getMetadata(TOOL_ID);
         const toolMetadata = { ...defaultToolMetadata, ...metadata };
         if (!isToolMetadata(toolMetadata)) throw "Error bad metadata";
-        if (toolMetadata.condition === "") return;
 
         const attachments = await OBR.scene.items.getItemAttachments([
           target.id,
@@ -141,6 +140,11 @@ function createMode() {
             index++;
             labelAttachments.push(attachment);
           }
+        }
+
+        if (toolMetadata.condition === "") {
+          OBR.scene.items.addItems([...labelAttachments]);
+          return;
         }
 
         const conditionLabel = buildLabel()
@@ -203,8 +207,18 @@ function getLabelPosition(
   height: number,
   index: number,
 ): Vector2 {
+  if (index === 0)
+    return Math2.add(targetPosition, {
+      x: -width / 2,
+      y: -height / 2 + 20,
+    });
+  if (index === 1)
+    return Math2.add(targetPosition, {
+      x: -width / 2,
+      y: -height / 2 + 20 - -1 * 35,
+    });
   return Math2.add(targetPosition, {
     x: -width / 2,
-    y: -height / 2 + 20 + index * 34,
+    y: -height / 2 + 20 - (index - 1) * 35,
   });
 }
