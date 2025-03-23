@@ -66,7 +66,7 @@ export const conditions = {
     Weakened: {
       ...drawSteelConditionModifiers,
     },
-  } as ConditionTree,
+  } satisfies ConditionTree,
   drawSteelWithEmojis: {
     ["Bleeding " + bleedingEmoji]: {
       ...drawSteelEmojisConditionModifiers,
@@ -95,7 +95,7 @@ export const conditions = {
     ["Weakened " + weakenedEmoji]: {
       ...drawSteelEmojisConditionModifiers,
     },
-  } as ConditionTree,
+  } satisfies ConditionTree,
   drawSteelEmojisOptional: {
     Bleeding: {
       [bleedingEmoji]: drawSteelEmojisOptionalConditionModifiers,
@@ -133,7 +133,7 @@ export const conditions = {
       [weakenedEmoji]: drawSteelEmojisOptionalConditionModifiers,
       ...drawSteelEmojisOptionalConditionModifiers,
     },
-  } as ConditionTree,
+  } satisfies ConditionTree,
   dnd: {
     Blinded: {},
     Charmed: {},

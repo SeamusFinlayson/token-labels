@@ -10,7 +10,7 @@ import { TOOL_ID, MODE_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
 import {
   closePopover,
-  createPopover as openPopover,
+  openPopover as openPopover,
   getImageBounds,
   switchToDefaultTool,
 } from "../utils";

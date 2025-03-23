@@ -55,14 +55,14 @@ export function getImageCenter(image: Image, sceneDpi: number) {
   return imageCenter;
 }
 
-export async function createPopover() {
+export async function openPopover() {
   OBR.popover.open({
     id: POPOVER_ID,
     url: `/src/menu/menu.html?themeMode=${(await OBR.theme.getTheme()).mode}`,
     width: 400,
     height: 300,
     anchorOrigin: { horizontal: "CENTER", vertical: "TOP" },
-    marginThreshold: 0,
+    marginThreshold: 8,
     anchorElementId: TOOL_ID,
     disableClickAway: true,
     hidePaper: true,

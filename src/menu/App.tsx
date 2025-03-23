@@ -2,27 +2,16 @@ import { useEffect, useState } from "react";
 import OBR from "@owlbear-rodeo/sdk";
 import { TOOL_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
+import { cn, setPopoverHeight, switchToDefaultTool } from "../utils";
+import { ChevronDown, ChevronUp, Settings2, Terminal, X } from "lucide-react";
 import {
-  setPopoverHeight,
-  setPopoverWidth,
-  switchToDefaultTool,
-} from "../utils";
-import {
-  ChevronDown,
-  ChevronUp,
-  Settings2,
-  TextCursorInput,
-  X,
-} from "lucide-react";
-import { ConditionLibraryName, conditions } from "./conditionsTree";
+  ConditionLibraryName,
+  conditions,
+  ConditionTree,
+} from "./conditionsTree";
 import { ConditionInput } from "./conditionInput";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/select";
+import { SettingsMenu } from "./SettingsMenu";
+import { MenuBarButton } from "../components/menuBarButton";
 
 // const conditionHints = [
 //   "Blinded",
@@ -129,117 +118,148 @@ export function App() {
     OBR.tool.setMetadata(TOOL_ID, toolMetadata);
   };
 
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [preventResize, setPreventResize] = useState(false);
+  const [settingsIsOpen, setSettingsIsOpen] = useState(false);
+
   const [conditionLibrary, setConditionLibrary] =
     useState<ConditionLibraryName>("drawSteel");
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [settingsIsOpen, setSettingsIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
   if (toolMetadata === undefined)
-    return <div className="bg-mirage-200 dark:bg-mirage-900/60 h-full" />;
+    return <div className="bg-mirage-200 dark:bg-mirage-800 h-full" />;
+
+  const expandPopover = () => {
+    if (!preventResize) {
+      setPreventResize(true);
+      setPopoverHeight(300);
+      setTimeout(() => {
+        setIsExpanded(true);
+        setPreventResize(false);
+      }, 50);
+    }
+  };
+
+  const collapsePopover = () => {
+    if (!preventResize) {
+      setPreventResize(true);
+      setIsExpanded(false);
+      setTimeout(() => {
+        setPopoverHeight(40);
+        setPreventResize(false);
+      }, 300);
+    }
+  };
 
   return (
     <div>
-      <div className="flex justify-center pt-2">
-        <div className="bg-mirage-900/50 flex gap-2 rounded-full backdrop-blur-2xl">
-          {isExpanded && (
-            <button
-              onClick={() => setSettingsIsOpen(!settingsIsOpen)}
-              className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-white/10"
-            >
-              {settingsIsOpen ? <TextCursorInput /> : <Settings2 />}
-            </button>
-          )}
-          <button
-            className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-white/10"
+      <div className="flex justify-center">
+        <div className="bg-mirage-50/[0.97] dark:bg-mirage-800/95 flex w-full rounded-full backdrop-blur-lg">
+          <MenuBarButton
+            fade={settingsIsOpen}
             onClick={() => {
-              const newExpanded = !isExpanded;
-              if (newExpanded) {
-                setPopoverHeight(300);
-                setPopoverWidth(400);
-                setTimeout(() => {
-                  setIsExpanded(newExpanded);
-                }, 50);
-              } else {
-                setIsExpanded(newExpanded);
-                setTimeout(() => {
-                  setPopoverHeight(60);
-                  // setExpandedWidth(newExpanded);
-                  setPopoverWidth(88);
-                }, 150);
-              }
+              if (!isExpanded) expandPopover();
+              setSettingsIsOpen(false);
+            }}
+          >
+            <div
+              className={cn({
+                "text-primary dark:text-primary-dark": settingsIsOpen === false,
+              })}
+            >
+              <Terminal />
+            </div>
+          </MenuBarButton>
+          <MenuBarButton
+            fade={!settingsIsOpen}
+            onClick={() => {
+              if (!isExpanded) expandPopover();
+              setSettingsIsOpen(true);
+            }}
+          >
+            <div
+              className={cn({
+                "text-primary dark:text-primary-dark": settingsIsOpen === true,
+              })}
+            >
+              <Settings2 />
+            </div>
+          </MenuBarButton>
+
+          <div className="grow"></div>
+          <MenuBarButton
+            fade
+            onClick={() => {
+              if (!isExpanded) expandPopover();
+              else collapsePopover();
             }}
           >
             {isExpanded ? <ChevronUp /> : <ChevronDown />}
-          </button>
-          <button
-            className="flex size-10 items-center justify-center rounded-full transition-all duration-150 hover:bg-white/10"
-            onClick={switchToDefaultTool}
-          >
+          </MenuBarButton>
+          <MenuBarButton fade onClick={switchToDefaultTool}>
             <X />
-          </button>
+          </MenuBarButton>
         </div>
       </div>
 
-      <div className="h-2 shrink-0"></div>
-
       <div
         data-expanded-height={isExpanded}
-        className="flex h-0 flex-col overflow-clip text-black/[0.87] transition-[height] duration-150 ease-out data-[expanded-height=true]:h-[244px] dark:text-white"
+        className="h-0 overflow-clip text-black/[0.87] transition-[height] duration-300 ease-in-out data-[expanded-height=true]:h-[260px] dark:text-white"
       >
-        <div className="bg-mirage-200 dark:bg-mirage-800 flex h-full flex-col rounded-2xl">
-          {settingsIsOpen ? (
-            <div className="p-4">
-              <div className="mb-0.5 text-xs font-medium text-white/[.67]">
-                Condition Library
-              </div>
-              <Select
-                value={conditionLibrary}
-                onValueChange={(value) => {
-                  setConditionLibrary(value as ConditionLibraryName);
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    conditionLibrary: value as ConditionLibraryName,
-                  });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Condition Library" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem
-                    value={"drawSteel" satisfies ConditionLibraryName}
-                  >
-                    Draw Steel
-                  </SelectItem>
-                  <SelectItem
-                    value={"drawSteelWithEmojis" satisfies ConditionLibraryName}
-                  >
-                    Draw Steel with Emojis
-                  </SelectItem>
-                  <SelectItem
-                    value={
-                      "drawSteelEmojisOptional" satisfies ConditionLibraryName
+        <div className="h-full pt-2">
+          <div className="bg-mirage-50/[0.97] dark:bg-mirage-900/95 h-full rounded-2xl backdrop-blur-lg">
+            {isExpanded && (
+              <>
+                {settingsIsOpen ? (
+                  <SettingsMenu
+                    conditionLibrary={conditionLibrary}
+                    setConditionLibrary={(value) => {
+                      setConditionLibrary(value);
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        conditionLibrary: value,
+                      });
+                    }}
+                    customConditions={toolMetadata.customConditions}
+                    setCustomConditions={(conditions) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        customConditions: conditions,
+                      })
                     }
-                  >
-                    Draw Steel with Optional Emojis
-                  </SelectItem>
-                  <SelectItem value={"dnd" satisfies ConditionLibraryName}>
-                    Dungeons & Dragons
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          ) : (
-            <ConditionInput
-              value={inputValue}
-              onChange={(value) => {
-                setInputValue(value);
-                updateToolMetadata({ ...toolMetadata, condition: value });
-              }}
-              conditionTree={conditions[conditionLibrary]}
-            />
-          )}
+                  />
+                ) : (
+                  <ConditionInput
+                    value={inputValue}
+                    onChange={(value) => {
+                      setInputValue(value);
+                      updateToolMetadata({ ...toolMetadata, condition: value });
+                    }}
+                    conditionTree={{
+                      ...conditions[conditionLibrary],
+                      ...(Object.assign(
+                        {},
+                        ...toolMetadata.customConditions.map((value) => ({
+                          [value]: {},
+                        })),
+                      ) as ConditionTree),
+                    }}
+                    saveCondition={(condition) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        customConditions: [
+                          ...new Set([
+                            ...toolMetadata.customConditions,
+                            condition,
+                          ]),
+                        ],
+                      })
+                    }
+                  />
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
