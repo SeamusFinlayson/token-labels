@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import OBR from "@owlbear-rodeo/sdk";
 import { TOOL_ID } from "../ids";
-import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
+import {
+  ConditionLibraryName,
+  ConditionTree,
+  defaultToolMetadata,
+  isToolMetadata,
+  ToolMetadata,
+} from "../types";
 import { cn, setPopoverHeight, switchToDefaultTool } from "../utils";
 import { ChevronDown, ChevronUp, Settings2, Terminal, X } from "lucide-react";
-import { conditions } from "./conditionsTree";
-import { ConditionTree } from "../types";
-import { ConditionLibraryName } from "../types";
-import { conditions } from "./conditionsTree";
-import { ConditionTree } from "../types";
-import { ConditionLibraryName } from "../types";
 import { ConditionInput } from "./conditionInput";
 import { SettingsMenu } from "./SettingsMenu";
 import { MenuBarButton } from "../components/menuBarButton";
+import { conditions } from "./conditionsTree";
 
 // const conditionHints = [
 //   "Blinded",
