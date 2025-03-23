@@ -61,6 +61,7 @@ export function SettingsMenu({
           ? "You have no custom conditions."
           : customConditions.map((condition) => (
               <Button
+                key={condition}
                 onClick={() => {
                   setCustomConditions(
                     customConditions.filter((val) => val !== condition),
