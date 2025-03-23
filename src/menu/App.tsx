@@ -4,11 +4,9 @@ import { TOOL_ID } from "../ids";
 import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
 import { cn, setPopoverHeight, switchToDefaultTool } from "../utils";
 import { ChevronDown, ChevronUp, Settings2, Terminal, X } from "lucide-react";
-import {
-  ConditionLibraryName,
-  conditions,
-  ConditionTree,
-} from "./conditionsTree";
+import { conditions } from "./conditionsTree";
+import { ConditionTree } from "../types";
+import { ConditionLibraryName } from "../types";
 import { ConditionInput } from "./conditionInput";
 import { SettingsMenu } from "./SettingsMenu";
 import { MenuBarButton } from "../components/menuBarButton";
@@ -154,7 +152,10 @@ export function App() {
   return (
     <div>
       <div className="flex justify-center">
-        <div className="bg-mirage-50/[0.97] dark:bg-mirage-800/95 flex w-full rounded-full backdrop-blur-lg">
+        <div
+          data-is-expanded={isExpanded}
+          className="bg-mirage-50/[0.97] dark:bg-mirage-900/95 flex w-full rounded-t-[20px] backdrop-blur-lg transition-all duration-300 data-[is-expanded=false]:rounded-b-[20px]"
+        >
           <MenuBarButton
             fade={settingsIsOpen}
             onClick={() => {
@@ -206,8 +207,8 @@ export function App() {
         data-expanded-height={isExpanded}
         className="h-0 overflow-clip text-black/[0.87] transition-[height] duration-300 ease-in-out data-[expanded-height=true]:h-[260px] dark:text-white"
       >
-        <div className="h-full pt-2">
-          <div className="bg-mirage-50/[0.97] dark:bg-mirage-900/95 h-full rounded-2xl backdrop-blur-lg">
+        <div className="h-full">
+          <div className="bg-mirage-50/[0.97] dark:bg-mirage-900/95 h-full backdrop-blur-lg">
             {isExpanded && (
               <>
                 {settingsIsOpen ? (

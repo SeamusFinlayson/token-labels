@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Eraser } from "lucide-react";
 import { ScrollArea } from "../components/scrollArea";
 import { Button } from "../components/Button";
-import { ConditionTree } from "./conditionsTree";
+import { ConditionTree } from "../types";
 
 export function ConditionInput({
   value,
@@ -41,26 +41,26 @@ export function ConditionInput({
 
   return (
     <div className="group flex h-full flex-col">
-      <div className="flex w-full shrink-0 items-center justify-between gap-2 rounded-t-2xl p-3">
-        <input
-          ref={inputRef}
-          className="bg-mirage-100 dark:bg-mirage-700 hover:bg-600 w-64 grow rounded-full px-2 py-2 pl-4 outline-hidden transition-all group-focus-within:bg-transparent group-focus-within:duration-300 dark:shadow dark:group-focus-within:bg-transparent dark:group-focus-within:shadow-none"
-          placeholder="Type condition..."
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
-          }}
-          autoFocus
-        />
-        <div className="size-10">
+      <div className="p-3 px-6 transition-[padding] group-focus-within:px-3">
+        <div className="bg-mirage-100 dark:bg-mirage-700 flex w-full items-center justify-between rounded-full group-focus-within:bg-transparent group-focus-within:duration-300 dark:shadow dark:group-focus-within:bg-transparent dark:group-focus-within:shadow-none">
+          <input
+            ref={inputRef}
+            className="hover:bg-600 w-full shrink grow px-2 py-2 pr-0 pl-4 outline-hidden transition-all"
+            placeholder="Type condition..."
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+            }}
+            autoFocus
+          />
           {value !== "" && (
             <Button
               tabIndex={-1}
-              onClick={() => {
+              onMouseDown={() => {
                 onChange("");
                 inputRef.current?.focus();
               }}
-              className="flex size-10 shrink-0 items-center justify-center rounded-lg p-0 text-black dark:text-white"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-transparent p-0 text-black shadow-none dark:bg-transparent dark:text-white dark:shadow-none"
             >
               <div className="opacity-[0.54] dark:opacity-[1]">
                 <Eraser />

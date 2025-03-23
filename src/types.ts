@@ -1,4 +1,12 @@
-import { ConditionLibraryName } from "./menu/conditionsTree";
+export type ConditionLibraryName =
+  | "drawSteel"
+  | "drawSteelWithEmojis"
+  | "drawSteelEmojisOptional"
+  | "dnd";
+
+export interface ConditionTree {
+  [string: string]: ConditionTree;
+}
 
 export type ToolMetadata = {
   condition: string;

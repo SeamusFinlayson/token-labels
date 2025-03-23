@@ -1,6 +1,4 @@
-export interface ConditionTree {
-  [string: string]: ConditionTree;
-}
+import { ConditionTree } from "../types";
 
 const bleedingEmoji = String.fromCharCode(0xd83e, 0xde78);
 const dazedEmoji =
@@ -30,12 +28,6 @@ const drawSteelEmojisConditionModifiers: ConditionTree = {
   ["(EoT) " + oneEmoji]: {},
   ["(SE) " + diceEmoji]: {},
 };
-
-export type ConditionLibraryName =
-  | "drawSteel"
-  | "drawSteelWithEmojis"
-  | "drawSteelEmojisOptional"
-  | "dnd";
 
 export const conditions = {
   drawSteel: {
