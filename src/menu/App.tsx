@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import OBR from "@owlbear-rodeo/sdk";
 import { TOOL_ID } from "../ids";
-import {
-  ConditionLibraryName,
-  ConditionTree,
-  defaultToolMetadata,
-  isToolMetadata,
-  ToolMetadata,
-} from "../types";
+import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
 import { cn, setPopoverHeight, switchToDefaultTool } from "../utils";
-import { ChevronDown, ChevronUp, Settings2, Terminal, X } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  Icon,
+  Settings2Icon,
+  XIcon,
+} from "lucide-react";
 import { ConditionInput } from "./conditionInput";
 import { SettingsMenu } from "./SettingsMenu";
 import { MenuBarButton } from "../components/menuBarButton";
-import { conditions } from "./conditionsTree";
+import { conditionLibraries } from "./conditionsLibraries";
+import { featherText } from "@lucide/lab";
 
 // const conditionHints = [
 //   "Blinded",
@@ -108,25 +109,19 @@ export function App() {
     OBR.tool.getMetadata(TOOL_ID).then((value) => {
       if (isToolMetadata(value)) {
         setToolMetadata(value);
-        setInputValue(value.condition);
-        setConditionLibrary(value.conditionLibrary);
       } else setToolMetadata(defaultToolMetadata);
     });
   }, []);
 
   // Update app state and stored tool metadata
   const updateToolMetadata = (toolMetadata: ToolMetadata) => {
-    setToolMetadata(toolMetadata);
+    setToolMetadata({ ...toolMetadata });
     OBR.tool.setMetadata(TOOL_ID, toolMetadata);
   };
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [preventResize, setPreventResize] = useState(false);
   const [settingsIsOpen, setSettingsIsOpen] = useState(false);
-
-  const [conditionLibrary, setConditionLibrary] =
-    useState<ConditionLibraryName>("drawSteel");
-  const [inputValue, setInputValue] = useState("");
 
   if (toolMetadata === undefined)
     return <div className="bg-mirage-200 dark:bg-mirage-800 h-full" />;
@@ -153,12 +148,16 @@ export function App() {
     }
   };
 
+  const conditionTree = conditionLibraries.find(
+    (lib) => lib.name === toolMetadata.conditionLibraryName,
+  )?.conditionTree;
+
   return (
     <div>
       <div className="flex justify-center">
         <div
           data-is-expanded={isExpanded}
-          className="bg-mirage-50/[0.97] dark:bg-mirage-900/95 flex w-full rounded-t-[20px] backdrop-blur-lg transition-all duration-300 ease-in-out data-[is-expanded=false]:rounded-b-[20px]"
+          className="bg-mirage-50/95 dark:bg-mirage-900/95 flex w-full rounded-t-[20px] backdrop-blur-lg transition-all duration-300 ease-in-out data-[is-expanded=false]:rounded-b-[20px]"
         >
           <MenuBarButton
             fade={settingsIsOpen}
@@ -172,7 +171,8 @@ export function App() {
                 "text-primary dark:text-primary-dark": settingsIsOpen === false,
               })}
             >
-              <Terminal />
+              <Icon iconNode={featherText} />
+              {/* <PenLineIcon /> */}
             </div>
           </MenuBarButton>
           <MenuBarButton
@@ -187,7 +187,7 @@ export function App() {
                 "text-primary dark:text-primary-dark": settingsIsOpen === true,
               })}
             >
-              <Settings2 />
+              <Settings2Icon />
             </div>
           </MenuBarButton>
 
@@ -199,10 +199,10 @@ export function App() {
               else collapsePopover();
             }}
           >
-            {isExpanded ? <ChevronUp /> : <ChevronDown />}
+            {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </MenuBarButton>
           <MenuBarButton fade onClick={switchToDefaultTool}>
-            <X />
+            <XIcon />
           </MenuBarButton>
         </div>
       </div>
@@ -214,43 +214,39 @@ export function App() {
         <div className="h-full">
           <div
             data-is-expanded={isExpanded}
-            className="bg-mirage-50/[0.97] dark:bg-mirage-900/95 h-full backdrop-blur-lg transition-all duration-300 ease-in-out data-[is-expanded=false]:rounded-[20px]"
+            className="bg-mirage-50/95 dark:bg-mirage-900/95 h-full backdrop-blur-lg transition-all duration-300 ease-in-out data-[is-expanded=false]:rounded-[20px]"
           >
             {isExpanded && (
               <>
                 {settingsIsOpen ? (
                   <SettingsMenu
-                    conditionLibrary={conditionLibrary}
-                    setConditionLibrary={(value) => {
-                      setConditionLibrary(value);
-                      updateToolMetadata({
-                        ...toolMetadata,
-                        conditionLibrary: value,
-                      });
-                    }}
-                    customConditions={toolMetadata.customConditions}
-                    setCustomConditions={(conditions) =>
-                      updateToolMetadata({
-                        ...toolMetadata,
-                        customConditions: conditions,
-                      })
-                    }
+                    toolMetadata={toolMetadata}
+                    setToolMetadata={updateToolMetadata}
                   />
                 ) : (
                   <ConditionInput
-                    value={inputValue}
+                    value={toolMetadata.condition}
                     onChange={(value) => {
-                      setInputValue(value);
                       updateToolMetadata({ ...toolMetadata, condition: value });
                     }}
                     conditionTree={{
-                      ...conditions[conditionLibrary],
-                      ...(Object.assign(
+                      ...conditionTree,
+                      ...Object.assign(
                         {},
                         ...toolMetadata.customConditions.map((value) => ({
                           [value]: {},
                         })),
-                      ) as ConditionTree),
+                      ),
+                      ...Object.assign(
+                        {},
+                        ...toolMetadata.customConditionLibraries
+                          .filter((val) =>
+                            toolMetadata.enabledCustomConditionLibraries.includes(
+                              val.name,
+                            ),
+                          )
+                          .map((val) => val.conditionTree),
+                      ),
                     }}
                     saveCondition={(condition) =>
                       updateToolMetadata({

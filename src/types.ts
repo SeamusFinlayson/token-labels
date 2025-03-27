@@ -1,31 +1,39 @@
-export type ConditionLibraryName =
-  | "drawSteel"
-  | "drawSteelWithEmojis"
-  | "drawSteelEmojisOptional"
-  | "dnd";
+export type ToolMetadata = {
+  condition: string;
+  conditionLibraryName: string;
+  customConditions: string[];
+  customConditionLibraries: ConditionLibrary[];
+  enabledCustomConditionLibraries: string[];
+};
 
 export interface ConditionTree {
   [string: string]: ConditionTree;
 }
 
-export type ToolMetadata = {
-  condition: string;
-  conditionLibrary: ConditionLibraryName;
-  customConditions: string[];
+export type ConditionLibrary = {
+  name: string;
+  conditionTree: ConditionTree;
 };
 
 export function isToolMetadata(value: unknown): value is ToolMetadata {
   if (typeof value !== "object") return false;
   if (value === null) return false;
-  if (typeof (value as ToolMetadata)?.condition !== "string") return false;
-  if (typeof (value as ToolMetadata)?.conditionLibrary !== "string")
+
+  const toolMetadata = value as ToolMetadata;
+  if (typeof toolMetadata?.condition !== "string") return false;
+  if (typeof toolMetadata?.conditionLibraryName !== "string") return false;
+  if (!Array.isArray(toolMetadata?.customConditions)) return false;
+  if (!Array.isArray(toolMetadata?.customConditionLibraries)) return false;
+  if (!Array.isArray(toolMetadata?.enabledCustomConditionLibraries))
     return false;
-  if (!Array.isArray((value as ToolMetadata)?.customConditions)) return false;
+
   return true;
 }
 
 export const defaultToolMetadata: ToolMetadata = {
   condition: "",
-  conditionLibrary: "drawSteelWithEmojis",
+  conditionLibraryName: "Draw Steel with Emojis",
   customConditions: [],
+  customConditionLibraries: [],
+  enabledCustomConditionLibraries: [],
 };
