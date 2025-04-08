@@ -51,7 +51,7 @@ export function ConditionInput({
             onChange={(e) => {
               onChange(e.target.value);
             }}
-            autoFocus
+            // autoFocus
           />
           {value !== "" && (
             <Button

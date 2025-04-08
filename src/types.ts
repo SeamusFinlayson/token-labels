@@ -6,14 +6,14 @@ export type ToolMetadata = {
   enabledCustomConditionLibraries: string[];
 };
 
+export interface ConditionLibrary {
+  name: string;
+  conditionTree: ConditionTree;
+}
+
 export interface ConditionTree {
   [string: string]: ConditionTree;
 }
-
-export type ConditionLibrary = {
-  name: string;
-  conditionTree: ConditionTree;
-};
 
 export function isToolMetadata(value: unknown): value is ToolMetadata {
   if (typeof value !== "object") return false;

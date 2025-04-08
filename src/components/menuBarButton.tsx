@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes } from "react";
 import { cn } from "../utils";
+import { IconFadeWrapper } from "./IconFadeWrapper";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fade?: boolean;
@@ -19,9 +20,7 @@ export function MenuBarButton({
       )}
       {...props}
     >
-      <div className={cn({ "opacity-[0.54] dark:opacity-[1]": fade })}>
-        {children}
-      </div>
+      <IconFadeWrapper fade={fade}>{children}</IconFadeWrapper>
     </button>
   );
 }
