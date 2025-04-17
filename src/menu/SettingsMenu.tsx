@@ -8,25 +8,37 @@ import {
   SelectValue,
 } from "../components/select";
 import { conditionLibraries } from "./conditionsLibraries";
-import { ConditionLibrary, ToolMetadata } from "../types";
+import {
+  ConditionLibrary,
+  defaultSharingMetadata,
+  SharingMetadata,
+  ToolMetadata,
+} from "../types";
 import OBR from "@owlbear-rodeo/sdk";
 import {
   CircleCheckIcon,
   CircleIcon,
+  PlayCircleIcon,
+  StopCircleIcon,
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
-import { ButtonHTMLAttributes } from "react";
-import { cn } from "../utils";
 import { IconFadeWrapper } from "../components/IconFadeWrapper";
+import { usePlayerRole } from "./usePlayerRole";
 
 export function SettingsMenu({
   toolMetadata,
   setToolMetadata,
+  sharingMetadata,
+  setSharingMetadata,
 }: {
   toolMetadata: ToolMetadata;
   setToolMetadata: (toolMetadata: ToolMetadata) => void;
+  sharingMetadata: SharingMetadata | null;
+  setSharingMetadata: (sharingMetadata: SharingMetadata) => void;
 }) {
+  const playerRole = usePlayerRole();
+
   return (
     <div className="flex h-full flex-col">
       <ScrollArea>
@@ -34,128 +46,239 @@ export function SettingsMenu({
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
             Default Library
           </div>
-          <Select
-            value={toolMetadata.conditionLibraryName}
-            onValueChange={(value) => {
-              setToolMetadata({
-                ...toolMetadata,
-                conditionLibraryName: value,
-              });
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Condition Library" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={"none"}>{"None"}</SelectItem>
-              {conditionLibraries.map((lib) => (
-                <SelectItem key={lib.name} value={lib.name}>
-                  {lib.name}
-                </SelectItem>
+          <div className="space-y-2">
+            {playerRole === "PLAYER" && !sharingMetadata ? (
+              <div>Controlled by GM</div>
+            ) : (
+              <Select
+                value={toolMetadata.conditionLibraryName}
+                onValueChange={(value) => {
+                  setToolMetadata({
+                    ...toolMetadata,
+                    conditionLibraryName: value,
+                  });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Condition Library" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={"none"}>{"None"}</SelectItem>
+                  {conditionLibraries.map((lib) => (
+                    <SelectItem key={lib.name} value={lib.name}>
+                      {lib.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {playerRole === "GM" &&
+              (sharingMetadata && sharingMetadata.shareDefaultLibrary ? (
+                <Button
+                  variant={"active"}
+                  size={"sm"}
+                  onClick={() =>
+                    setSharingMetadata({
+                      ...sharingMetadata,
+                      shareDefaultLibrary: false,
+                    })
+                  }
+                >
+                  <StopCircleIcon className="size-4" />
+                  <div>Stop Sharing</div>
+                </Button>
+              ) : (
+                <Button
+                  variant={"default"}
+                  size={"sm"}
+                  onClick={() =>
+                    setSharingMetadata({
+                      ...(sharingMetadata
+                        ? sharingMetadata
+                        : defaultSharingMetadata),
+                      shareDefaultLibrary: true,
+                    })
+                  }
+                >
+                  <PlayCircleIcon className="size-4" />
+                  <div>Share</div>
+                </Button>
               ))}
-            </SelectContent>
-          </Select>
+          </div>
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
             Custom Condition Libraries
           </div>
-          <div className="space-y-2">
-            {toolMetadata.customConditionLibraries.map((library) => (
-              <div
-                key={library.name}
-                className="grid grid-cols-[1fr_36px] items-center gap-2"
-              >
-                <Button
-                  className="grid grid-cols-[20px_1fr_0px] gap-2 p-2"
-                  onClick={
-                    toolMetadata.enabledCustomConditionLibraries.includes(
-                      library.name,
-                    )
-                      ? () =>
-                          setToolMetadata({
-                            ...toolMetadata,
-                            enabledCustomConditionLibraries:
-                              toolMetadata.enabledCustomConditionLibraries.filter(
-                                (val) => val !== library.name,
-                              ),
-                          })
-                      : () =>
-                          setToolMetadata({
-                            ...toolMetadata,
-                            enabledCustomConditionLibraries: [
-                              ...toolMetadata.enabledCustomConditionLibraries,
-                              library.name,
-                            ],
-                          })
-                  }
+          {playerRole === "PLAYER" && !sharingMetadata ? (
+            <div>Controlled by GM</div>
+          ) : (
+            <div className="space-y-2">
+              {toolMetadata.customConditionLibraries.map((library) => (
+                <div
+                  key={library.name}
+                  className="grid grid-cols-[1fr_36px] items-center gap-2"
                 >
-                  <div>
-                    <IconFadeWrapper>
-                      {toolMetadata.enabledCustomConditionLibraries.includes(
+                  <Button
+                    variant={"secondary"}
+                    className="grid grid-cols-[20px_1fr_0px] gap-2 p-2"
+                    onClick={
+                      toolMetadata.enabledCustomConditionLibraries.includes(
                         library.name,
-                      ) ? (
-                        <CircleCheckIcon className="size-5" />
-                      ) : (
-                        <CircleIcon className="size-5" />
-                      )}
+                      )
+                        ? () =>
+                            setToolMetadata({
+                              ...toolMetadata,
+                              enabledCustomConditionLibraries:
+                                toolMetadata.enabledCustomConditionLibraries.filter(
+                                  (val) => val !== library.name,
+                                ),
+                            })
+                        : () =>
+                            setToolMetadata({
+                              ...toolMetadata,
+                              enabledCustomConditionLibraries: [
+                                ...toolMetadata.enabledCustomConditionLibraries,
+                                library.name,
+                              ],
+                            })
+                    }
+                  >
+                    <div>
+                      <IconFadeWrapper>
+                        {toolMetadata.enabledCustomConditionLibraries.includes(
+                          library.name,
+                        ) ? (
+                          <CircleCheckIcon />
+                        ) : (
+                          <CircleIcon />
+                        )}
+                      </IconFadeWrapper>
+                    </div>
+
+                    <div className="truncate text-left text-sm">
+                      {library.name}
+                    </div>
+                  </Button>
+                  <Button
+                    variant={"destructive"}
+                    onClick={() => {
+                      setToolMetadata({
+                        ...toolMetadata,
+                        customConditionLibraries:
+                          toolMetadata.customConditionLibraries.filter(
+                            (val) => val.name !== library.name,
+                          ),
+                      });
+                    }}
+                  >
+                    <IconFadeWrapper>
+                      <Trash2Icon />
                     </IconFadeWrapper>
-                  </div>
-
-                  <div className="truncate text-left text-sm">
-                    {library.name}
-                  </div>
-                </Button>
-                <TableButton
-                  onClick={() => {
-                    setToolMetadata({
-                      ...toolMetadata,
-                      customConditionLibraries:
-                        toolMetadata.customConditionLibraries.filter(
-                          (val) => val.name !== library.name,
-                        ),
-                    });
-                  }}
-                >
-                  <IconFadeWrapper>
-                    <Trash2Icon className="size-5" />
-                  </IconFadeWrapper>
-                </TableButton>
+                  </Button>
+                </div>
+              ))}
+              <div className="flex justify-start gap-2">
+                <UploadButton
+                  toolMetadata={toolMetadata}
+                  setToolMetadata={setToolMetadata}
+                />
+                {playerRole === "GM" &&
+                  (sharingMetadata && sharingMetadata.shareCustomLibraries ? (
+                    <Button
+                      variant={"active"}
+                      size={"sm"}
+                      onClick={() =>
+                        setSharingMetadata({
+                          ...sharingMetadata,
+                          shareCustomLibraries: false,
+                        })
+                      }
+                    >
+                      <StopCircleIcon className="size-4" />
+                      <div>Stop Sharing</div>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={"default"}
+                      size={"sm"}
+                      onClick={() =>
+                        setSharingMetadata({
+                          ...(sharingMetadata
+                            ? sharingMetadata
+                            : defaultSharingMetadata),
+                          shareCustomLibraries: true,
+                        })
+                      }
+                    >
+                      <PlayCircleIcon className="size-4" />
+                      <div>Share</div>
+                    </Button>
+                  ))}
               </div>
-            ))}
-
-            <div className="flex justify-start">
-              <UploadButton
-                toolMetadata={toolMetadata}
-                setToolMetadata={setToolMetadata}
-              />
             </div>
-          </div>
+          )}
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
             Custom Conditions (click to delete)
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {toolMetadata.customConditions.length === 0 ? (
-              <div className="col-span-2">
-                {"You have no custom conditions."}
-              </div>
-            ) : (
-              toolMetadata.customConditions.map((condition) => (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              {toolMetadata.customConditions.length === 0 ? (
+                <div className="col-span-2">
+                  {"You have no custom conditions."}
+                </div>
+              ) : (
+                toolMetadata.customConditions.map((condition) => (
+                  <Button
+                    variant={"secondary"}
+                    size={"sm"}
+                    key={condition}
+                    onClick={() => {
+                      setToolMetadata({
+                        ...toolMetadata,
+                        customConditions: toolMetadata.customConditions.filter(
+                          (val) => val !== condition,
+                        ),
+                      });
+                    }}
+                  >
+                    {condition}
+                  </Button>
+                ))
+              )}
+            </div>
+            {/* {playerRole === "GM" &&
+              (sharingMetadata && sharingMetadata.shareCustomConditions ? (
                 <Button
-                  key={condition}
-                  onClick={() => {
-                    setToolMetadata({
-                      ...toolMetadata,
-                      customConditions: toolMetadata.customConditions.filter(
-                        (val) => val !== condition,
-                      ),
-                    });
-                  }}
+                  variant={"active"}
+                  size={"sm"}
+                  onClick={() =>
+                    setSharingMetadata({
+                      ...sharingMetadata,
+                      shareCustomConditions: false,
+                    })
+                  }
                 >
-                  {condition}
+                  <StopCircleIcon className="size-4" />
+                  <div>Stop Sharing</div>
                 </Button>
-              ))
-            )}
+              ) : (
+                <Button
+                  variant={"default"}
+                  size={"sm"}
+                  onClick={() =>
+                    setSharingMetadata({
+                      ...(sharingMetadata
+                        ? sharingMetadata
+                        : defaultSharingMetadata),
+                      shareCustomConditions: true,
+                    })
+                  }
+                >
+                  <PlayCircleIcon className="size-4" />
+                  <div>Share</div>
+                </Button>
+              ))} */}
           </div>
         </div>
       </ScrollArea>
@@ -173,7 +296,7 @@ function UploadButton({
   return (
     <div>
       <label
-        className="bg-mirage-800 hover:bg-mirage-700 dark:bg-mirage-100 focus-visible:bg-mirage-50 dark:hover:bg-mirage-200 dark:focus-visible:bg-mirage-200 flex cursor-pointer items-center justify-center gap-2 rounded-lg px-2 py-1 text-sm text-white outline-hidden duration-100 dark:text-black"
+        className="bg-mirage-800 hover:bg-mirage-700 dark:bg-mirage-100 focus-visible:bg-mirage-200 dark:hover:bg-mirage-200 dark:focus-visible:bg-mirage-200 flex cursor-pointer items-center justify-center gap-2 rounded-lg px-2 py-1 text-sm text-white outline-hidden duration-100 dark:text-black"
         htmlFor="uploadButton"
       >
         <UploadIcon className="size-4" />
@@ -242,22 +365,4 @@ function isConditionLibrary(value: unknown): value is ConditionLibrary {
   if (conditionLibrary.conditionTree === null) return false;
 
   return true;
-}
-
-function TableButton({
-  className,
-  children,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      className={cn(
-        "flex items-center justify-center rounded-lg p-2 text-black transition-all duration-150 hover:bg-red-200 dark:text-white dark:hover:bg-red-800",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
 }

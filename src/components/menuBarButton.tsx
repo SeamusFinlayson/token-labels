@@ -4,10 +4,12 @@ import { IconFadeWrapper } from "./IconFadeWrapper";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fade?: boolean;
+  lightModeFade?: boolean;
 }
 
 export function MenuBarButton({
   fade = false,
+  lightModeFade = false,
   className,
   children,
   ...props
@@ -20,7 +22,9 @@ export function MenuBarButton({
       )}
       {...props}
     >
-      <IconFadeWrapper fade={fade}>{children}</IconFadeWrapper>
+      <IconFadeWrapper lightModeFade={lightModeFade} fade={fade}>
+        {children}
+      </IconFadeWrapper>
     </button>
   );
 }

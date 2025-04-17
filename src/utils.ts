@@ -1,7 +1,13 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { OBR_MOVE_TOOL_ID, POPOVER_ID, TOOL_ID } from "./ids";
+import { OBR_MOVE_TOOL_ID, POPOVER_ID, SHARING_ID, TOOL_ID } from "./ids";
 import OBR, { Image, Math2 } from "@owlbear-rodeo/sdk";
+import {
+  isSharingMetadata,
+  ShareMessage,
+  SharingMetadata,
+  ToolMetadata,
+} from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -79,3 +85,34 @@ export function setPopoverHeight(height: number) {
 export function setPopoverWidth(width: number) {
   OBR.popover.setWidth(POPOVER_ID, width);
 }
+
+export const getSharingMetadata = () => {
+  const value = localStorage.getItem(SHARING_ID);
+  if (value === null) return null;
+  const valueJson = JSON.parse(value);
+  if (isSharingMetadata(valueJson)) return valueJson;
+  return null;
+};
+
+export function writeSharingMetadata(sharingMetadata: SharingMetadata | null) {
+  if (sharingMetadata === null) localStorage.removeItem(SHARING_ID);
+  localStorage.setItem(SHARING_ID, JSON.stringify(sharingMetadata));
+}
+
+export const shareToolConfig = (
+  sharingMetadata: SharingMetadata,
+  toolMetadata: ToolMetadata,
+) => {
+  console.log("send sharing data");
+  OBR.broadcast.sendMessage(SHARING_ID, {
+    timeStamp: sharingMetadata.timeStamp,
+    shareDefaultLibrary: sharingMetadata.shareDefaultLibrary,
+    shareCustomLibraries: sharingMetadata.shareCustomLibraries,
+    shareCustomConditions: sharingMetadata.shareCustomConditions,
+    conditionLibraryName: toolMetadata.conditionLibraryName,
+    customConditions: toolMetadata.customConditions,
+    customConditionLibraries: toolMetadata.customConditionLibraries,
+    enabledCustomConditionLibraries:
+      toolMetadata.enabledCustomConditionLibraries,
+  } satisfies ShareMessage);
+};

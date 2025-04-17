@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import OBR from "@owlbear-rodeo/sdk";
-import { TOOL_ID } from "../ids";
-import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
-import { cn, setPopoverHeight, switchToDefaultTool } from "../utils";
+import {
+  cn,
+  shareToolConfig,
+  setPopoverHeight,
+  switchToDefaultTool,
+} from "../utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -15,30 +17,27 @@ import { SettingsMenu } from "./SettingsMenu";
 import { MenuBarButton } from "../components/menuBarButton";
 import { conditionLibraries } from "./conditionsLibraries";
 import { featherText } from "@lucide/lab";
+import { useSharingMetadata } from "./useSharingMetadata";
+import { useToolMetadata } from "./useToolMetadata";
 
 export function App() {
-  const [toolMetadata, setToolMetadata] = useState<ToolMetadata>();
-  useEffect(() => {
-    OBR.tool.getMetadata(TOOL_ID).then((value) => {
-      if (isToolMetadata(value)) {
-        setToolMetadata(value);
-      } else setToolMetadata(defaultToolMetadata);
-    });
-  }, []);
+  const [sharingMetadata, updateSharingMetadata] = useSharingMetadata();
+  const [toolMetadata, updateToolMetadata] = useToolMetadata(
+    sharingMetadata,
+    updateSharingMetadata,
+  );
 
-  // Update app state and stored tool metadata
-  const updateToolMetadata = (toolMetadata: ToolMetadata) => {
-    setToolMetadata({ ...toolMetadata });
-    OBR.tool.setMetadata(TOOL_ID, toolMetadata);
-  };
+  // If this is the host broadcast updates to its tool configurations
+  useEffect(() => {
+    if (sharingMetadata !== null) {
+      shareToolConfig(sharingMetadata, toolMetadata);
+    }
+  }, [sharingMetadata, toolMetadata]);
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [bottomRounded, setBottomRounded] = useState(false);
   const [preventResize, setPreventResize] = useState(false);
   const [settingsIsOpen, setSettingsIsOpen] = useState(false);
-
-  if (toolMetadata === undefined)
-    return <div className="bg-mirage-200 dark:bg-mirage-800 h-full" />;
 
   const expandPopover = () => {
     if (!preventResize) {
@@ -75,10 +74,11 @@ export function App() {
       <div className="flex justify-center">
         <div
           data-bottom-rounded={bottomRounded}
-          className="bg-mirage-50/95 dark:bg-mirage-900/95 flex w-full rounded-t-[20px] backdrop-blur-lg transition-all duration-75 ease-out data-[bottom-rounded=true]:rounded-b-[20px]"
+          className="dark:bg-mirage-900/95 flex w-full rounded-t-[20px] bg-white/95 backdrop-blur-lg transition-all duration-75 ease-out data-[bottom-rounded=true]:rounded-b-[20px]"
         >
           <MenuBarButton
             fade={settingsIsOpen}
+            lightModeFade={settingsIsOpen}
             onClick={() => {
               if (!isExpanded) expandPopover();
               setSettingsIsOpen(false);
@@ -95,6 +95,7 @@ export function App() {
           </MenuBarButton>
           <MenuBarButton
             fade={!settingsIsOpen}
+            lightModeFade={!settingsIsOpen}
             onClick={() => {
               if (!isExpanded) expandPopover();
               setSettingsIsOpen(true);
@@ -111,7 +112,7 @@ export function App() {
 
           <div className="grow"></div>
           <MenuBarButton
-            fade
+            lightModeFade
             onClick={() => {
               if (!isExpanded) expandPopover();
               else collapsePopover();
@@ -119,7 +120,7 @@ export function App() {
           >
             {isExpanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
           </MenuBarButton>
-          <MenuBarButton fade onClick={switchToDefaultTool}>
+          <MenuBarButton lightModeFade onClick={switchToDefaultTool}>
             <XIcon />
           </MenuBarButton>
         </div>
@@ -130,13 +131,15 @@ export function App() {
         className="h-0 overflow-clip text-black/[0.87] transition-[height] duration-300 ease-in-out data-[expanded-height=true]:h-[260px] dark:text-white"
       >
         <div className="h-full">
-          <div className="bg-mirage-50/95 dark:bg-mirage-900/95 h-full backdrop-blur-lg transition-all duration-300 ease-in-out">
+          <div className="dark:bg-mirage-900/95 h-full bg-white/95 backdrop-blur-lg transition-all duration-300 ease-in-out">
             {isExpanded && (
               <>
                 {settingsIsOpen ? (
                   <SettingsMenu
                     toolMetadata={toolMetadata}
                     setToolMetadata={updateToolMetadata}
+                    sharingMetadata={sharingMetadata}
+                    setSharingMetadata={updateSharingMetadata}
                   />
                 ) : (
                   <ConditionInput

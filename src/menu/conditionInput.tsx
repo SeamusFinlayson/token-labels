@@ -54,7 +54,7 @@ export function ConditionInput({
             // autoFocus
           />
           {value !== "" && (
-            <Button
+            <button
               tabIndex={-1}
               onMouseDown={() => {
                 onChange("");
@@ -67,7 +67,7 @@ export function ConditionInput({
               <div className="opacity-[0.54] dark:opacity-[1]">
                 <Eraser />
               </div>
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -81,6 +81,7 @@ export function ConditionInput({
             .sort((a, b) => sortConditionHints(value, a, b))
             .map((conditionHint) => (
               <Button
+                variant={"secondary"}
                 key={conditionHint}
                 onClick={() => {
                   onChange(conditionHint);
