@@ -13,10 +13,6 @@ const weakenedEmoji = "😫";
 const oneEmoji = "1️⃣";
 const diceEmoji = "🎲";
 
-const drawSteelEmojisOptionalConditionModifiers: ConditionTree = {
-  "(EoT)": { [oneEmoji]: {} },
-  "(SE)": { [diceEmoji]: {} },
-};
 const drawSteelConditionModifiers: ConditionTree = {
   "(EoT)": {},
   "(SE)": {},
@@ -24,6 +20,12 @@ const drawSteelConditionModifiers: ConditionTree = {
 const drawSteelEmojisConditionModifiers: ConditionTree = {
   ["(EoT) " + oneEmoji]: {},
   ["(SE) " + diceEmoji]: {},
+};
+const dndConditionModifiers: ConditionTree = {
+  ["()"]: {},
+};
+const dndWithEmojisConditionModifiers: ConditionTree = {
+  ["() " + diceEmoji]: {},
 };
 
 export const conditionLibraries: ConditionLibrary[] = [
@@ -57,6 +59,8 @@ export const conditionLibraries: ConditionLibrary[] = [
       Weakened: {
         ...drawSteelConditionModifiers,
       },
+      Winded: {},
+      Dying: {},
     },
   },
   {
@@ -89,69 +93,62 @@ export const conditionLibraries: ConditionLibrary[] = [
       ["Weakened " + weakenedEmoji]: {
         ...drawSteelEmojisConditionModifiers,
       },
-    },
-  },
-  {
-    name: "Draw Steel with Optional Emojis",
-    conditionTree: {
-      Bleeding: {
-        [bleedingEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Dazed: {
-        [dazedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Frightened: {
-        [frightenedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Grabbed: {
-        [grabbedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Prone: {
-        [proneEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Restrained: {
-        [restrainedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Slowed: {
-        [slowedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Taunted: {
-        [tauntedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
-      Weakened: {
-        [weakenedEmoji]: drawSteelEmojisOptionalConditionModifiers,
-        ...drawSteelEmojisOptionalConditionModifiers,
-      },
+      ["Winded " + "🍃"]: {},
+      ["Dying " + "💀"]: {},
     },
   },
   {
     name: "Dungeons & Dragons",
     conditionTree: {
-      Blinded: {},
-      Charmed: {},
-      Dead: {},
-      Deafened: {},
-      Dying: {},
-      Frightened: {},
-      Grappled: {},
-      Incapacitated: {},
-      Invisible: {},
-      Paralyzed: {},
-      Petrified: {},
-      Poisoned: {},
-      Prone: {},
-      Restrained: {},
-      Stunned: {},
-      Stable: {},
-      Unconscious: {},
+      Blinded: { ...dndConditionModifiers },
+      Charmed: { ...dndConditionModifiers },
+      Dazed: { ...dndConditionModifiers },
+      Dead: { ...dndConditionModifiers },
+      Deafened: { ...dndConditionModifiers },
+      Dying: { ...dndConditionModifiers },
+      Frightened: { ...dndConditionModifiers },
+      Grappled: { ...dndConditionModifiers },
+      Incapacitated: { ...dndConditionModifiers },
+      Invisible: { ...dndConditionModifiers },
+      Paralyzed: { ...dndConditionModifiers },
+      Petrified: { ...dndConditionModifiers },
+      Poisoned: { ...dndConditionModifiers },
+      Prone: { ...dndConditionModifiers },
+      Restrained: { ...dndConditionModifiers },
+      Silenced: { ...dndConditionModifiers },
+      Stunned: { ...dndConditionModifiers },
+      Unconscious: { ...dndConditionModifiers },
+      Exhaustion: {
+        ["(1)"]: {},
+        ["(2)"]: {},
+        ["(3)"]: {},
+        ["(4)"]: {},
+        ["(5)"]: {},
+        ["(6)"]: {},
+      },
+    },
+  },
+  {
+    name: "Dungeons & Dragons with Emojis",
+    conditionTree: {
+      ["Blinded " + "🙈"]: { ...dndWithEmojisConditionModifiers },
+      ["Charmed " + "✨"]: { ...dndWithEmojisConditionModifiers },
+      ["Dazed " + dazedEmoji]: { ...dndWithEmojisConditionModifiers },
+      ["Dead " + " 💀"]: { ...dndWithEmojisConditionModifiers },
+      ["Deafened " + "🙉"]: { ...dndWithEmojisConditionModifiers },
+      ["Dying " + "😵"]: { ...dndWithEmojisConditionModifiers },
+      ["Frightened " + frightenedEmoji]: { ...dndWithEmojisConditionModifiers },
+      ["Grappled " + grabbedEmoji]: { ...dndWithEmojisConditionModifiers },
+      ["Incapacitated"]: { ...dndWithEmojisConditionModifiers },
+      ["Invisible " + "🫥"]: { ...dndWithEmojisConditionModifiers },
+      ["Paralyzed " + "⚡"]: { ...dndWithEmojisConditionModifiers },
+      ["Petrified " + "🪨"]: { ...dndWithEmojisConditionModifiers },
+      ["Poisoned " + "🐍"]: { ...dndWithEmojisConditionModifiers },
+      ["Prone " + proneEmoji]: { ...dndWithEmojisConditionModifiers },
+      ["Restrained " + restrainedEmoji]: { ...dndWithEmojisConditionModifiers },
+      ["Silenced " + "🙊"]: { ...dndWithEmojisConditionModifiers },
+      ["Stunned " + dazedEmoji]: { ...dndWithEmojisConditionModifiers },
+      ["Unconscious " + "😴"]: { ...dndWithEmojisConditionModifiers },
       Exhaustion: {
         ["(1)"]: {},
         ["(2)"]: {},
