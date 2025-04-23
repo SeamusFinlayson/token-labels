@@ -1,56 +1,67 @@
 import OBR from "@owlbear-rodeo/sdk";
-import { HELLO_CHANNEL, SHARING_ID, TOOL_ID } from "../ids";
+import { HELLO_CHANNEL, SHARING_ID } from "../ids";
 import { isSharingMetadata, isToolMetadata, ShareMessage } from "../types";
 import {
   getSharingMetadata,
-  shareToolConfig,
+  broadcastToolConfig,
   writeSharingMetadata,
+  getToolMetadata,
+  writeToolMetadata,
 } from "../utils";
 
 export function handleSharing() {
   // Request data
-  console.log("send hello");
   OBR.broadcast.sendMessage(HELLO_CHANNEL, {});
+
+  // Send data if it is hosted on this device
+  broadcastToolConfig(getSharingMetadata(), getToolMetadata());
 
   // Respond to requests for data
   OBR.broadcast.onMessage(HELLO_CHANNEL, async () => {
-    console.log("receive hello");
-
     const sharingMetadata = getSharingMetadata();
-    const toolMetadata = await OBR.tool.getMetadata(TOOL_ID);
+    const toolMetadata = getToolMetadata();
 
-    if (isSharingMetadata(sharingMetadata) && isToolMetadata(toolMetadata)) {
-      shareToolConfig(sharingMetadata, toolMetadata);
+    if (
+      sharingMetadata.isHost &&
+      isSharingMetadata(sharingMetadata) &&
+      isToolMetadata(toolMetadata)
+    ) {
+      broadcastToolConfig(sharingMetadata, toolMetadata);
     }
   });
 
   // Handle data
   OBR.broadcast.onMessage(SHARING_ID, async (event) => {
-    console.log("receive sharing data");
-
     const sharingMetadata = getSharingMetadata();
-    const toolMetadata = await OBR.tool.getMetadata(TOOL_ID);
+    const toolMetadata = getToolMetadata();
 
     const msg = event.data as ShareMessage;
-    if (sharingMetadata === null || msg.timeStamp > sharingMetadata.timeStamp) {
-      OBR.tool.setMetadata(TOOL_ID, {
+    if (msg.timeStamp >= sharingMetadata.timeStamp) {
+      writeToolMetadata({
         ...toolMetadata,
-        ...(msg.shareDefaultLibrary
+        ...(msg.sharedDefaultLibrary
           ? { conditionLibraryName: msg.conditionLibraryName }
           : {}),
-        ...(msg.shareCustomLibraries
+        ...(msg.sharedCustomLibraries
           ? {
               customConditionLibraries: msg.customConditionLibraries,
               enabledCustomConditionLibraries:
                 msg.enabledCustomConditionLibraries,
             }
           : {}),
-        ...(msg.shareCustomConditions
+        ...(msg.sharedCustomConditions
           ? { customConditions: msg.customConditions }
           : {}),
       });
 
-      if (sharingMetadata !== null) writeSharingMetadata(null);
+      writeSharingMetadata({
+        isHost: false,
+        timeStamp: msg.timeStamp,
+        sharedDefaultLibrary: msg.sharedDefaultLibrary,
+        sharedCustomLibraries: msg.sharedCustomLibraries,
+        sharedCustomConditions: msg.sharedCustomConditions,
+      });
+      // window.dispatchEvent(new Event("storage"));
     }
   });
 }

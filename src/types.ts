@@ -32,18 +32,18 @@ export function isToolMetadata(value: unknown): value is ToolMetadata {
 
 export const defaultToolMetadata: ToolMetadata = {
   condition: "",
-  conditionLibraryName: "None",
+  conditionLibraryName: "none",
   customConditions: [],
   customConditionLibraries: [],
   enabledCustomConditionLibraries: [],
 };
 
 export type SharingMetadata = {
-  timeStamp: number;
   isHost: boolean;
-  shareDefaultLibrary: boolean;
-  shareCustomLibraries: boolean;
-  shareCustomConditions: boolean;
+  timeStamp: number;
+  sharedDefaultLibrary: boolean;
+  sharedCustomLibraries: boolean;
+  sharedCustomConditions: boolean;
 };
 
 export function isSharingMetadata(value: unknown): value is SharingMetadata {
@@ -51,11 +51,12 @@ export function isSharingMetadata(value: unknown): value is SharingMetadata {
   if (value === null) return false;
 
   const sharingMetadata = value as SharingMetadata;
-  if (typeof sharingMetadata?.timeStamp !== "number") return false;
-  if (typeof sharingMetadata?.shareDefaultLibrary !== "boolean") return false;
-  if (typeof sharingMetadata?.shareCustomLibraries !== "boolean") return false;
-  if (typeof sharingMetadata?.shareCustomConditions !== "boolean") return false;
   if (typeof sharingMetadata?.isHost !== "boolean") return false;
+  if (typeof sharingMetadata?.timeStamp !== "number") return false;
+  if (typeof sharingMetadata?.sharedDefaultLibrary !== "boolean") return false;
+  if (typeof sharingMetadata?.sharedCustomLibraries !== "boolean") return false;
+  if (typeof sharingMetadata?.sharedCustomConditions !== "boolean")
+    return false;
 
   return true;
 }
@@ -63,16 +64,16 @@ export function isSharingMetadata(value: unknown): value is SharingMetadata {
 export const defaultSharingMetadata: SharingMetadata = {
   timeStamp: 0,
   isHost: false,
-  shareDefaultLibrary: false,
-  shareCustomLibraries: false,
-  shareCustomConditions: false,
+  sharedDefaultLibrary: false,
+  sharedCustomLibraries: false,
+  sharedCustomConditions: false,
 };
 
 export type ShareMessage = {
   timeStamp: number;
-  shareDefaultLibrary: boolean;
-  shareCustomLibraries: boolean;
-  shareCustomConditions: boolean;
+  sharedDefaultLibrary: boolean;
+  sharedCustomLibraries: boolean;
+  sharedCustomConditions: boolean;
   conditionLibraryName: string;
   customConditions: string[];
   customConditionLibraries: ConditionLibrary[];

@@ -3,7 +3,10 @@ import { twMerge } from "tailwind-merge";
 import { OBR_MOVE_TOOL_ID, POPOVER_ID, SHARING_ID, TOOL_ID } from "./ids";
 import OBR, { Image, Math2 } from "@owlbear-rodeo/sdk";
 import {
+  defaultSharingMetadata,
+  defaultToolMetadata,
   isSharingMetadata,
+  isToolMetadata,
   ShareMessage,
   SharingMetadata,
   ToolMetadata,
@@ -87,32 +90,50 @@ export function setPopoverWidth(width: number) {
 }
 
 export const getSharingMetadata = () => {
-  const value = localStorage.getItem(SHARING_ID);
-  if (value === null) return null;
+  const value = localStorage.getItem(SHARING_ID + OBR.room.id);
+  if (value === null) return defaultSharingMetadata;
   const valueJson = JSON.parse(value);
-  if (isSharingMetadata(valueJson)) return valueJson;
-  return null;
+  if (!isSharingMetadata(valueJson)) return defaultSharingMetadata;
+  return valueJson;
 };
 
 export function writeSharingMetadata(sharingMetadata: SharingMetadata | null) {
-  if (sharingMetadata === null) localStorage.removeItem(SHARING_ID);
-  localStorage.setItem(SHARING_ID, JSON.stringify(sharingMetadata));
+  if (sharingMetadata === null)
+    localStorage.removeItem(SHARING_ID + OBR.room.id);
+  localStorage.setItem(
+    SHARING_ID + OBR.room.id,
+    JSON.stringify(sharingMetadata),
+  );
 }
 
-export const shareToolConfig = (
+export function getToolMetadata() {
+  const value = localStorage.getItem(TOOL_ID + OBR.room.id);
+  if (value === null) return defaultToolMetadata;
+  const valueJson = JSON.parse(value);
+  if (!isToolMetadata(valueJson)) return defaultToolMetadata;
+  return valueJson;
+}
+
+export function writeToolMetadata(toolMetadata: ToolMetadata | null) {
+  if (toolMetadata === null) localStorage.removeItem(TOOL_ID + OBR.room.id);
+  localStorage.setItem(TOOL_ID + OBR.room.id, JSON.stringify(toolMetadata));
+}
+
+export const broadcastToolConfig = (
   sharingMetadata: SharingMetadata,
   toolMetadata: ToolMetadata,
 ) => {
-  console.log("send sharing data");
-  OBR.broadcast.sendMessage(SHARING_ID, {
-    timeStamp: sharingMetadata.timeStamp,
-    shareDefaultLibrary: sharingMetadata.shareDefaultLibrary,
-    shareCustomLibraries: sharingMetadata.shareCustomLibraries,
-    shareCustomConditions: sharingMetadata.shareCustomConditions,
-    conditionLibraryName: toolMetadata.conditionLibraryName,
-    customConditions: toolMetadata.customConditions,
-    customConditionLibraries: toolMetadata.customConditionLibraries,
-    enabledCustomConditionLibraries:
-      toolMetadata.enabledCustomConditionLibraries,
-  } satisfies ShareMessage);
+  if (sharingMetadata.isHost) {
+    OBR.broadcast.sendMessage(SHARING_ID, {
+      timeStamp: sharingMetadata.timeStamp,
+      sharedDefaultLibrary: sharingMetadata.sharedDefaultLibrary,
+      sharedCustomLibraries: sharingMetadata.sharedCustomLibraries,
+      sharedCustomConditions: sharingMetadata.sharedCustomConditions,
+      conditionLibraryName: toolMetadata.conditionLibraryName,
+      customConditions: toolMetadata.customConditions,
+      customConditionLibraries: toolMetadata.customConditionLibraries,
+      enabledCustomConditionLibraries:
+        toolMetadata.enabledCustomConditionLibraries,
+    } satisfies ShareMessage);
+  }
 };

@@ -7,12 +7,14 @@ import OBR, {
   Vector2,
 } from "@owlbear-rodeo/sdk";
 import { TOOL_ID, MODE_ID } from "../ids";
-import { defaultToolMetadata, isToolMetadata, ToolMetadata } from "../types";
+import { defaultToolMetadata, isToolMetadata } from "../types";
 import {
   closePopover,
   openPopover as openPopover,
   getImageBounds,
   switchToDefaultTool,
+  getToolMetadata,
+  writeToolMetadata,
 } from "../utils";
 
 export const icon = new URL(
@@ -103,7 +105,7 @@ export function createMode() {
         const sceneDpi = await OBR.scene.grid.getDpi();
         const { width, height } = getImageBounds(target, sceneDpi);
 
-        const metadata = await OBR.tool.getMetadata(TOOL_ID);
+        const metadata = getToolMetadata();
         const toolMetadata = { ...defaultToolMetadata, ...metadata };
         if (!isToolMetadata(toolMetadata)) throw "Error bad metadata";
 
@@ -167,7 +169,7 @@ export async function handleActiveTool() {
   OBR.tool.onToolChange((id) => {
     if (id === TOOL_ID) openPopover();
     else {
-      OBR.tool.setMetadata(TOOL_ID, { condition: "" } as ToolMetadata);
+      writeToolMetadata({ ...getToolMetadata(), condition: "" });
       closePopover();
     }
   });

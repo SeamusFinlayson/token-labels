@@ -19,25 +19,33 @@ import {
   CircleCheckIcon,
   CircleIcon,
   PlayCircleIcon,
+  RadioIcon,
+  RadioTowerIcon,
+  RefreshCwIcon,
   StopCircleIcon,
   Trash2Icon,
   UploadIcon,
 } from "lucide-react";
 import { IconFadeWrapper } from "../components/IconFadeWrapper";
 import { usePlayerRole } from "./usePlayerRole";
+import { HELLO_CHANNEL } from "../ids";
+import { useState } from "react";
 
 export function SettingsMenu({
   toolMetadata,
-  setToolMetadata,
+  updateToolMetadata,
   sharingMetadata,
-  setSharingMetadata,
+  updateSharingMetadata,
 }: {
   toolMetadata: ToolMetadata;
-  setToolMetadata: (toolMetadata: ToolMetadata) => void;
-  sharingMetadata: SharingMetadata | null;
-  setSharingMetadata: (sharingMetadata: SharingMetadata) => void;
+  updateToolMetadata: (toolMetadata: ToolMetadata) => void;
+  sharingMetadata: SharingMetadata;
+  updateSharingMetadata: (sharingMetadata: SharingMetadata) => void;
 }) {
   const playerRole = usePlayerRole();
+
+  const [animateSpin, setAnimateSpin] = useState(false);
+  const [animatePing, setAnimatePing] = useState(false);
 
   return (
     <div className="flex h-full flex-col">
@@ -47,13 +55,13 @@ export function SettingsMenu({
             Default Library
           </div>
           <div className="space-y-2">
-            {playerRole === "PLAYER" && !sharingMetadata ? (
+            {!sharingMetadata.isHost && sharingMetadata.sharedDefaultLibrary ? (
               <div>Controlled by GM</div>
             ) : (
               <Select
                 value={toolMetadata.conditionLibraryName}
                 onValueChange={(value) => {
-                  setToolMetadata({
+                  updateToolMetadata({
                     ...toolMetadata,
                     conditionLibraryName: value,
                   });
@@ -72,44 +80,12 @@ export function SettingsMenu({
                 </SelectContent>
               </Select>
             )}
-            {playerRole === "GM" &&
-              (sharingMetadata && sharingMetadata.shareDefaultLibrary ? (
-                <Button
-                  variant={"active"}
-                  size={"sm"}
-                  onClick={() =>
-                    setSharingMetadata({
-                      ...sharingMetadata,
-                      shareDefaultLibrary: false,
-                    })
-                  }
-                >
-                  <StopCircleIcon className="size-4" />
-                  <div>Stop Sharing</div>
-                </Button>
-              ) : (
-                <Button
-                  variant={"default"}
-                  size={"sm"}
-                  onClick={() =>
-                    setSharingMetadata({
-                      ...(sharingMetadata
-                        ? sharingMetadata
-                        : defaultSharingMetadata),
-                      shareDefaultLibrary: true,
-                    })
-                  }
-                >
-                  <PlayCircleIcon className="size-4" />
-                  <div>Share</div>
-                </Button>
-              ))}
           </div>
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
             Custom Condition Libraries
           </div>
-          {playerRole === "PLAYER" && !sharingMetadata ? (
+          {!sharingMetadata.isHost && sharingMetadata.sharedCustomLibraries ? (
             <div>Controlled by GM</div>
           ) : (
             <div className="space-y-2">
@@ -126,7 +102,7 @@ export function SettingsMenu({
                         library.name,
                       )
                         ? () =>
-                            setToolMetadata({
+                            updateToolMetadata({
                               ...toolMetadata,
                               enabledCustomConditionLibraries:
                                 toolMetadata.enabledCustomConditionLibraries.filter(
@@ -134,7 +110,7 @@ export function SettingsMenu({
                                 ),
                             })
                         : () =>
-                            setToolMetadata({
+                            updateToolMetadata({
                               ...toolMetadata,
                               enabledCustomConditionLibraries: [
                                 ...toolMetadata.enabledCustomConditionLibraries,
@@ -162,7 +138,7 @@ export function SettingsMenu({
                   <Button
                     variant={"destructive"}
                     onClick={() => {
-                      setToolMetadata({
+                      updateToolMetadata({
                         ...toolMetadata,
                         customConditionLibraries:
                           toolMetadata.customConditionLibraries.filter(
@@ -180,40 +156,8 @@ export function SettingsMenu({
               <div className="flex justify-start gap-2">
                 <UploadButton
                   toolMetadata={toolMetadata}
-                  setToolMetadata={setToolMetadata}
+                  setToolMetadata={updateToolMetadata}
                 />
-                {playerRole === "GM" &&
-                  (sharingMetadata && sharingMetadata.shareCustomLibraries ? (
-                    <Button
-                      variant={"active"}
-                      size={"sm"}
-                      onClick={() =>
-                        setSharingMetadata({
-                          ...sharingMetadata,
-                          shareCustomLibraries: false,
-                        })
-                      }
-                    >
-                      <StopCircleIcon className="size-4" />
-                      <div>Stop Sharing</div>
-                    </Button>
-                  ) : (
-                    <Button
-                      variant={"default"}
-                      size={"sm"}
-                      onClick={() =>
-                        setSharingMetadata({
-                          ...(sharingMetadata
-                            ? sharingMetadata
-                            : defaultSharingMetadata),
-                          shareCustomLibraries: true,
-                        })
-                      }
-                    >
-                      <PlayCircleIcon className="size-4" />
-                      <div>Share</div>
-                    </Button>
-                  ))}
               </div>
             </div>
           )}
@@ -234,7 +178,7 @@ export function SettingsMenu({
                     size={"sm"}
                     key={condition}
                     onClick={() => {
-                      setToolMetadata({
+                      updateToolMetadata({
                         ...toolMetadata,
                         customConditions: toolMetadata.customConditions.filter(
                           (val) => val !== condition,
@@ -247,7 +191,7 @@ export function SettingsMenu({
                 ))
               )}
             </div>
-            {/* {playerRole === "GM" &&
+            {/* {
               (sharingMetadata && sharingMetadata.shareCustomConditions ? (
                 <Button
                   variant={"active"}
@@ -280,6 +224,132 @@ export function SettingsMenu({
                 </Button>
               ))} */}
           </div>
+
+          <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
+            Library Sharing
+          </div>
+          <div className="wrap space-y-2">
+            {sharingMetadata.isHost ? (
+              <>
+                {sharingMetadata.sharedDefaultLibrary ? (
+                  <Button
+                    variant={"active"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...sharingMetadata,
+                        sharedDefaultLibrary: false,
+                      })
+                    }
+                  >
+                    <StopCircleIcon />
+                    <div>Stop Sharing Default Library</div>
+                  </Button>
+                ) : (
+                  <Button
+                    variant={"default"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...(sharingMetadata
+                          ? sharingMetadata
+                          : defaultSharingMetadata),
+                        sharedDefaultLibrary: true,
+                      })
+                    }
+                  >
+                    <PlayCircleIcon />
+                    <div>Share Default Library</div>
+                  </Button>
+                )}
+                {sharingMetadata.sharedCustomLibraries ? (
+                  <Button
+                    variant={"active"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...sharingMetadata,
+                        sharedCustomLibraries: false,
+                      })
+                    }
+                  >
+                    <StopCircleIcon />
+                    <div>Stop Sharing Custom Libraries</div>
+                  </Button>
+                ) : (
+                  <Button
+                    variant={"default"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...(sharingMetadata
+                          ? sharingMetadata
+                          : defaultSharingMetadata),
+                        sharedCustomLibraries: true,
+                      })
+                    }
+                  >
+                    <PlayCircleIcon />
+                    <div>Share Custom Libraries</div>
+                  </Button>
+                )}
+                {playerRole === "GM" && (
+                  <Button
+                    variant={"default"}
+                    size={"sm"}
+                    onClick={() => {
+                      if (!animatePing) {
+                        setAnimatePing(true);
+                        setTimeout(() => setAnimatePing(false), 1000);
+                      }
+                      updateSharingMetadata(sharingMetadata);
+                    }}
+                  >
+                    <RadioIcon
+                      data-animate={animatePing}
+                      className="data-[animate=true]:animate-ping"
+                    />
+                    <div>Manually Sync</div>
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                {playerRole === "GM" && (
+                  <Button
+                    variant={"default"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...defaultSharingMetadata,
+                        isHost: true,
+                      })
+                    }
+                  >
+                    <RadioTowerIcon />
+                    <div>Share from This Device</div>
+                  </Button>
+                )}
+                <Button
+                  variant={"default"}
+                  size={"sm"}
+                  onClick={() => {
+                    if (!animateSpin) {
+                      setAnimateSpin(true);
+                      setTimeout(() => setAnimateSpin(false), 500);
+                    }
+                    OBR.broadcast.sendMessage(HELLO_CHANNEL, {});
+                  }}
+                >
+                  <RefreshCwIcon
+                    data-spin={animateSpin}
+                    className="data-[spin=true]:animate-spin"
+                  />
+                  <div>Manually Sync</div>
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </ScrollArea>
     </div>
@@ -299,7 +369,7 @@ function UploadButton({
         className="bg-mirage-800 hover:bg-mirage-700 dark:bg-mirage-100 focus-visible:bg-mirage-200 dark:hover:bg-mirage-200 dark:focus-visible:bg-mirage-200 flex cursor-pointer items-center justify-center gap-2 rounded-lg px-2 py-1 text-sm text-white outline-hidden duration-100 dark:text-black"
         htmlFor="uploadButton"
       >
-        <UploadIcon className="size-4" />
+        <UploadIcon className="size-4.5" />
         <div>Upload</div>
       </label>
       <input

@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-  cn,
-  shareToolConfig,
-  setPopoverHeight,
-  switchToDefaultTool,
-} from "../utils";
+import { useState } from "react";
+import { cn, setPopoverHeight, switchToDefaultTool } from "../utils";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -17,22 +12,15 @@ import { SettingsMenu } from "./SettingsMenu";
 import { MenuBarButton } from "../components/menuBarButton";
 import { conditionLibraries } from "./conditionsLibraries";
 import { featherText } from "@lucide/lab";
-import { useSharingMetadata } from "./useSharingMetadata";
-import { useToolMetadata } from "./useToolMetadata";
+import { useToolData } from "./useToolData";
 
 export function App() {
-  const [sharingMetadata, updateSharingMetadata] = useSharingMetadata();
-  const [toolMetadata, updateToolMetadata] = useToolMetadata(
+  const {
+    toolMetadata,
+    updateToolMetadata,
     sharingMetadata,
     updateSharingMetadata,
-  );
-
-  // If this is the host broadcast updates to its tool configurations
-  useEffect(() => {
-    if (sharingMetadata !== null) {
-      shareToolConfig(sharingMetadata, toolMetadata);
-    }
-  }, [sharingMetadata, toolMetadata]);
+  } = useToolData();
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [bottomRounded, setBottomRounded] = useState(false);
@@ -137,15 +125,18 @@ export function App() {
                 {settingsIsOpen ? (
                   <SettingsMenu
                     toolMetadata={toolMetadata}
-                    setToolMetadata={updateToolMetadata}
+                    updateToolMetadata={updateToolMetadata}
                     sharingMetadata={sharingMetadata}
-                    setSharingMetadata={updateSharingMetadata}
+                    updateSharingMetadata={updateSharingMetadata}
                   />
                 ) : (
                   <ConditionInput
                     value={toolMetadata.condition}
                     onChange={(value) => {
-                      updateToolMetadata({ ...toolMetadata, condition: value });
+                      updateToolMetadata(
+                        { ...toolMetadata, condition: value },
+                        true,
+                      );
                     }}
                     conditionTree={{
                       ...conditionTree,
