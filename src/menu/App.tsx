@@ -65,7 +65,6 @@ export function App() {
           className="dark:bg-mirage-900/95 flex w-full rounded-t-[20px] bg-white/95 backdrop-blur-lg transition-all duration-75 ease-out data-[bottom-rounded=true]:rounded-b-[20px]"
         >
           <MenuBarButton
-            fade={settingsIsOpen}
             lightModeFade={settingsIsOpen}
             onClick={() => {
               if (!isExpanded) expandPopover();
@@ -82,7 +81,6 @@ export function App() {
             </div>
           </MenuBarButton>
           <MenuBarButton
-            fade={!settingsIsOpen}
             lightModeFade={!settingsIsOpen}
             onClick={() => {
               if (!isExpanded) expandPopover();

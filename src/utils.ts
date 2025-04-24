@@ -109,9 +109,9 @@ export function writeSharingMetadata(sharingMetadata: SharingMetadata | null) {
 export function getToolMetadata() {
   const value = localStorage.getItem(TOOL_ID + OBR.room.id);
   if (value === null) return defaultToolMetadata;
-  const valueJson = JSON.parse(value);
-  if (!isToolMetadata(valueJson)) return defaultToolMetadata;
-  return valueJson;
+  const retrievedMetadata = { ...defaultToolMetadata, ...JSON.parse(value) };
+  if (!isToolMetadata(retrievedMetadata)) return defaultToolMetadata;
+  return retrievedMetadata;
 }
 
 export function writeToolMetadata(toolMetadata: ToolMetadata | null) {
@@ -137,3 +137,20 @@ export const broadcastToolConfig = (
     } satisfies ShareMessage);
   }
 };
+
+export function parseStringForNumber(
+  string: string,
+  settings?: { min?: number; max?: number; fallback?: number },
+): number {
+  const newValue = parseFloat(string);
+  if (Number.isNaN(newValue)) return settings?.fallback ? settings.fallback : 0;
+
+  if (settings !== undefined) {
+    if (settings.max !== undefined && newValue > settings.max)
+      return settings.max;
+    if (settings.min !== undefined && newValue < settings.min)
+      return settings.min;
+  }
+
+  return newValue;
+}

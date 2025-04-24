@@ -9,27 +9,44 @@ import {
 } from "../components/select";
 import { conditionLibraries } from "./conditionsLibraries";
 import {
-  ConditionLibrary,
+  defaultPositioningSettings,
   defaultSharingMetadata,
+  defaultToolMetadata,
   SharingMetadata,
   ToolMetadata,
 } from "../types";
 import OBR from "@owlbear-rodeo/sdk";
 import {
+  AlignCenterVerticalIcon,
+  AlignEndVerticalIcon,
+  AlignStartVerticalIcon,
+  AlignVerticalJustifyCenterIcon,
+  AlignVerticalJustifyEndIcon,
+  AlignVerticalJustifyStartIcon,
+  ArrowDownToLineIcon,
+  ArrowLeftToLineIcon,
+  ArrowRightToLineIcon,
+  ArrowUpToLineIcon,
+  BetweenHorizontalStartIcon,
   CircleCheckIcon,
   CircleIcon,
+  MoveHorizontalIcon,
+  MoveVerticalIcon,
   PlayCircleIcon,
   RadioIcon,
   RadioTowerIcon,
   RefreshCwIcon,
+  ScalingIcon,
   StopCircleIcon,
   Trash2Icon,
-  UploadIcon,
 } from "lucide-react";
 import { IconFadeWrapper } from "../components/IconFadeWrapper";
 import { usePlayerRole } from "./usePlayerRole";
 import { HELLO_CHANNEL } from "../ids";
-import { useState } from "react";
+import React, { useState } from "react";
+import { UploadButton } from "./uploadButton";
+import { cn, parseStringForNumber } from "../utils";
+import { Input } from "../components/settingInput";
 
 export function SettingsMenu({
   toolMetadata,
@@ -350,89 +367,175 @@ export function SettingsMenu({
               </>
             )}
           </div>
+
+          <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
+            Positioning and Scale
+          </div>
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Input
+                label="Horizontal Offset (px)"
+                Icon={<MoveHorizontalIcon />}
+                value={toolMetadata.horizontalOffset}
+                onUpdate={(target) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    horizontalOffset: parseStringForNumber(target.value, {
+                      fallback: defaultToolMetadata.horizontalOffset,
+                    }),
+                  })
+                }
+              />
+              <Input
+                label="Vertical Offset (px)"
+                Icon={<MoveVerticalIcon />}
+                value={toolMetadata.verticalOffset}
+                onUpdate={(target) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    verticalOffset: parseStringForNumber(target.value, {
+                      fallback: defaultToolMetadata.verticalOffset,
+                    }),
+                  })
+                }
+              />
+              <Input
+                label="Vertical Spacing"
+                Icon={<BetweenHorizontalStartIcon />}
+                value={toolMetadata.verticalSpacing}
+                onUpdate={(target) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    verticalSpacing: parseStringForNumber(target.value, {
+                      fallback: defaultToolMetadata.verticalSpacing,
+                    }),
+                  })
+                }
+              />
+              <Input
+                label="Scale"
+                Icon={<ScalingIcon />}
+                value={toolMetadata.scale}
+                onUpdate={(target) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    scale: parseStringForNumber(target.value, {
+                      fallback: defaultToolMetadata.scale,
+                      min: 0.2,
+                    }),
+                  })
+                }
+              />
+              <ToggleButtonGroup
+                label=" Alignment"
+                buttons={[
+                  { value: "LEFT", icon: <AlignStartVerticalIcon /> },
+                  { value: "CENTER", icon: <AlignCenterVerticalIcon /> },
+                  { value: "RIGHT", icon: <AlignEndVerticalIcon /> },
+                ]}
+                value={toolMetadata.alignment}
+                onChange={(value) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    alignment: value as "LEFT" | "RIGHT" | "CENTER",
+                  })
+                }
+              />
+              <ToggleButtonGroup
+                label="Justification"
+                buttons={[
+                  { value: "TOP", icon: <AlignVerticalJustifyStartIcon /> },
+                  { value: "CENTER", icon: <AlignVerticalJustifyCenterIcon /> },
+                  { value: "BOTTOM", icon: <AlignVerticalJustifyEndIcon /> },
+                ]}
+                value={toolMetadata.justification}
+                onChange={(value) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    justification: value as "CENTER" | "TOP" | "BOTTOM",
+                  })
+                }
+              />
+              <ToggleButtonGroup
+                label="Pointer Direction"
+                buttons={[
+                  { value: "LEFT", icon: <ArrowLeftToLineIcon /> },
+                  { value: "RIGHT", icon: <ArrowRightToLineIcon /> },
+                  { value: "UP", icon: <ArrowUpToLineIcon /> },
+                  { value: "DOWN", icon: <ArrowDownToLineIcon /> },
+                ]}
+                value={toolMetadata.pointerDirection}
+                onChange={(value) =>
+                  updateToolMetadata({
+                    ...toolMetadata,
+                    pointerDirection: value as "LEFT" | "RIGHT" | "UP" | "DOWN",
+                  })
+                }
+              />
+            </div>
+            <Button
+              size="sm"
+              onClick={() =>
+                updateToolMetadata({
+                  ...toolMetadata,
+                  ...defaultPositioningSettings,
+                })
+              }
+            >
+              Restore Defaults
+            </Button>
+          </div>
         </div>
       </ScrollArea>
     </div>
   );
 }
 
-function UploadButton({
-  toolMetadata,
-  setToolMetadata,
-}: {
-  toolMetadata: ToolMetadata;
-  setToolMetadata: (toolMetadata: ToolMetadata) => void;
-}) {
-  return (
-    <div>
-      <label
-        className="bg-mirage-800 hover:bg-mirage-700 dark:bg-mirage-100 focus-visible:bg-mirage-200 dark:hover:bg-mirage-200 dark:focus-visible:bg-mirage-200 flex cursor-pointer items-center justify-center gap-2 rounded-lg px-2 py-1 text-sm text-white outline-hidden duration-100 dark:text-black"
-        htmlFor="uploadButton"
-      >
-        <UploadIcon className="size-4.5" />
-        <div>Upload</div>
-      </label>
-      <input
-        value={""}
-        onChange={(e) => {
-          const fileReader = new FileReader();
-          const files = e.target.files?.[0];
-          if (files) {
-            fileReader.readAsText(files, "UTF-8");
-            fileReader.onload = (e) => {
-              let json: ConditionLibrary | undefined = undefined;
-              if (typeof e.target?.result === "string") {
-                try {
-                  json = JSON.parse(e.target?.result);
-                } catch (error) {
-                  console.error(error);
-                  OBR.notification.show("Could not parse file.", "ERROR");
-                }
-              }
-              if (isConditionLibrary(json)) {
-                setToolMetadata({
-                  ...toolMetadata,
-                  customConditionLibraries: [
-                    ...toolMetadata.customConditionLibraries.filter(
-                      (val) => val.name !== json.name,
-                    ),
-                    json,
-                  ],
-                  enabledCustomConditionLibraries: [
-                    ...toolMetadata.enabledCustomConditionLibraries,
-                    json.name,
-                  ],
-                });
-              } else {
-                OBR.notification.show(
-                  "Invalid condition library formatting.",
-                  "ERROR",
-                );
-              }
-            };
-          }
-        }}
-        type="file"
-        accept="application/json"
-        className="hidden"
-        id="uploadButton"
-      />
-    </div>
-  );
+interface ToggleButtonGroupProps {
+  label: string;
+  buttons: { value: string; icon: React.ReactNode }[];
+  value: string;
+  onChange: (value: string) => void;
 }
 
-function isConditionLibrary(value: unknown): value is ConditionLibrary {
-  if (typeof value !== "object") return false;
-  if (value === null) return false;
+function ToggleButtonGroup({
+  label,
+  buttons,
+  value,
+  onChange,
+}: ToggleButtonGroupProps) {
+  const children = buttons.map((item) => (
+    <Button
+      size="icon"
+      title={item.value.toLowerCase()}
+      variant={"ghost"}
+      key={item.value}
+      value={item.value}
+      onClick={() => onChange(item.value)}
+    >
+      <IconFadeWrapper lightModeFade={item.value !== value}>
+        <div
+          className={cn({
+            "text-primary dark:text-primary-dark": item.value === value,
+          })}
+        >
+          {item.icon}
+        </div>
+      </IconFadeWrapper>
+    </Button>
+  ));
 
-  const keys = Object.keys(value);
-  if (!keys.includes("name")) return false;
-  if (!keys.includes("conditionTree")) return false;
-
-  const conditionLibrary = value as ConditionLibrary;
-  if (typeof conditionLibrary.name !== "string") return false;
-  if (typeof conditionLibrary.conditionTree !== "object") return false;
-  if (conditionLibrary.conditionTree === null) return false;
-
-  return true;
+  return (
+    <div
+      className="dark:bg-mirage-700 bg-mirage-200/60 rounded-lg px-3 py-2 dark:shadow-sm"
+      onClick={() => {}}
+    >
+      <div className="h-full items-center space-y-1">
+        <div className="text-xs text-black/[0.54] dark:text-white/[.67]">
+          {label}
+        </div>
+        <div className="flex w-full justify-start gap-1">{children}</div>
+      </div>
+    </div>
+  );
 }

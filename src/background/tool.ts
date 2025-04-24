@@ -2,12 +2,13 @@ import OBR, {
   AttachmentBehavior,
   buildLabel,
   isImage,
+  isLabel,
   Item,
   Math2,
   Vector2,
 } from "@owlbear-rodeo/sdk";
 import { TOOL_ID, MODE_ID } from "../ids";
-import { defaultToolMetadata, isToolMetadata } from "../types";
+import { defaultToolMetadata, ToolMetadata } from "../types";
 import {
   closePopover,
   openPopover as openPopover,
@@ -23,7 +24,7 @@ export const icon = new URL(
 ).toString();
 
 // Constants used in multiple functions
-const FONT_SIZE = 22;
+const FONT_SIZE = 16;
 const FONT = "Roboto, sans-serif";
 const LOCKED = false;
 const DISABLE_HIT = false;
@@ -35,6 +36,8 @@ const DISABLE_ATTACHMENT_BEHAVIORS: AttachmentBehavior[] = [
   "SCALE",
   // "POSITION",
 ];
+
+let lastNotificationId = "";
 
 export function createTool() {
   OBR.tool.create({
@@ -105,9 +108,7 @@ export function createMode() {
         const sceneDpi = await OBR.scene.grid.getDpi();
         const { width, height } = getImageBounds(target, sceneDpi);
 
-        const metadata = getToolMetadata();
-        const toolMetadata = { ...defaultToolMetadata, ...metadata };
-        if (!isToolMetadata(toolMetadata)) throw "Error bad metadata";
+        const toolMetadata = getToolMetadata();
 
         const attachments = await OBR.scene.items.getItemAttachments([
           target.id,
@@ -115,13 +116,23 @@ export function createMode() {
         const labelAttachments: Item[] = [];
         let index = 0;
         for (const attachment of attachments) {
-          if (attachment.id.startsWith(`${target.id}-label`)) {
+          if (
+            attachment.id.startsWith(`${target.id}-label`) &&
+            isLabel(attachment)
+          ) {
             attachment.position = getLabelPosition(
               target.position,
+              index,
               width,
               height,
-              index,
+              toolMetadata,
             );
+            attachment.style = {
+              ...attachment.style,
+              pointerDirection: toolMetadata.pointerDirection,
+              minViewScale: toolMetadata.scale,
+              maxViewScale: toolMetadata.scale,
+            };
             index++;
             labelAttachments.push(attachment);
           }
@@ -129,24 +140,36 @@ export function createMode() {
 
         if (toolMetadata.condition === "") {
           OBR.scene.items.addItems([...labelAttachments]);
+          OBR.notification.close(lastNotificationId);
+          lastNotificationId = await OBR.notification.show(
+            `${index} label${index === 1 ? "" : "s"} reorganized.`,
+          );
           return;
         }
 
         const conditionLabel = buildLabel()
-          .maxViewScale(0.8)
-          .minViewScale(0.8)
-          .position(getLabelPosition(target.position, width, height, index))
+          .maxViewScale(toolMetadata.scale)
+          .minViewScale(toolMetadata.scale)
+          .position(
+            getLabelPosition(
+              target.position,
+              index,
+              width,
+              height,
+              toolMetadata,
+            ),
+          )
           .plainText(toolMetadata.condition)
           .fontSize(FONT_SIZE)
           .fontFamily(FONT)
           .fontWeight(400)
           .pointerHeight(0)
-          .pointerDirection("LEFT")
+          .pointerDirection(toolMetadata.pointerDirection)
           .attachedTo(target.id)
           .fillOpacity(0.87)
           .layer("TEXT")
-          .cornerRadius(sceneDpi / 12)
-          .padding(sceneDpi / 50)
+          .cornerRadius((sceneDpi / 150) * 6)
+          .padding((sceneDpi / 150) * 2)
           .backgroundOpacity(BACKGROUND_OPACITY)
           .locked(LOCKED)
           .metadata({})
@@ -188,22 +211,33 @@ function getLabelId(itemId: string): string {
 
 function getLabelPosition(
   targetPosition: Vector2,
+  index: number,
   width: number,
   height: number,
-  index: number,
+  toolMetadata: ToolMetadata,
 ): Vector2 {
-  if (index === 0)
-    return Math2.add(targetPosition, {
-      x: -width / 2,
-      y: -height / 2 + 20,
-    });
-  if (index === 1)
-    return Math2.add(targetPosition, {
-      x: -width / 2,
-      y: -height / 2 + 20 - -1 * 35,
-    });
-  return Math2.add(targetPosition, {
-    x: -width / 2,
-    y: -height / 2 + 20 - (index - 1) * 35,
+  const origin = Math2.add(targetPosition, {
+    x: width * alignmentMultiplier[toolMetadata.alignment],
+    y: height * justificationMultiplier[toolMetadata.justification],
+  });
+
+  if (index === 1) index = -1;
+  else if (index > 1) index--;
+
+  return Math2.add(origin, {
+    x: toolMetadata.horizontalOffset,
+    y: toolMetadata.verticalOffset - index * toolMetadata.verticalSpacing,
   });
 }
+
+const alignmentMultiplier = {
+  ["LEFT"]: -0.5,
+  ["CENTER"]: 0,
+  ["RIGHT"]: 0.5,
+};
+
+const justificationMultiplier = {
+  ["TOP"]: -0.5,
+  ["CENTER"]: 0,
+  ["BOTTOM"]: 0.5,
+};

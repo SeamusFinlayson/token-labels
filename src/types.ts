@@ -1,10 +1,21 @@
+export type PositioningSettings = {
+  horizontalOffset: number;
+  verticalOffset: number;
+  verticalSpacing: number;
+  scale: number;
+  alignment: "LEFT" | "CENTER" | "RIGHT";
+  justification: "TOP" | "CENTER" | "BOTTOM";
+  pointerDirection: "UP" | "DOWN" | "LEFT" | "RIGHT";
+};
+
 export type ToolMetadata = {
   condition: string;
+
   conditionLibraryName: string;
   customConditions: string[];
   customConditionLibraries: ConditionLibrary[];
   enabledCustomConditionLibraries: string[];
-};
+} & PositioningSettings;
 
 export interface ConditionLibrary {
   name: string;
@@ -30,12 +41,25 @@ export function isToolMetadata(value: unknown): value is ToolMetadata {
   return true;
 }
 
+export const defaultPositioningSettings: PositioningSettings = {
+  horizontalOffset: 0,
+  verticalOffset: 15,
+  verticalSpacing: 35,
+  scale: 1,
+  alignment: "LEFT",
+  justification: "TOP",
+  pointerDirection: "LEFT",
+};
+
 export const defaultToolMetadata: ToolMetadata = {
   condition: "",
+
   conditionLibraryName: "none",
   customConditions: [],
   customConditionLibraries: [],
   enabledCustomConditionLibraries: [],
+
+  ...defaultPositioningSettings,
 };
 
 export type SharingMetadata = {

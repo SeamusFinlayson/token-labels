@@ -34,6 +34,8 @@
 
   --color-primary: #9966ff;
   --color-primary-dark: #bb99ff;
+
+  --breakpoint-sm: 22rem;
 }
 
 button {
