@@ -250,7 +250,7 @@ export function SettingsMenu({
           </div>
           <div className="space-y-2">
             {!sharingMetadata.isHost &&
-            sharingMetadata.sharedCustomLibraries ? (
+            sharingMetadata.sharedPositioningSettings ? (
               <div>Controlled by GM</div>
             ) : (
               <>
