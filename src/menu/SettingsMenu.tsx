@@ -282,7 +282,7 @@ export function SettingsMenu({
                     }
                   />
                   <Input
-                    label="Vertical Spacing"
+                    label="Vertical Spacing (px)"
                     Icon={<BetweenHorizontalStartIcon />}
                     value={toolMetadata.verticalSpacing}
                     onUpdate={(target) =>
