@@ -52,6 +52,17 @@ export function handleSharing() {
         ...(msg.sharedCustomConditions
           ? { customConditions: msg.customConditions }
           : {}),
+        ...(msg.sharedPositioningSettings
+          ? {
+              horizontalOffset: msg.horizontalOffset,
+              verticalOffset: msg.verticalOffset,
+              verticalSpacing: msg.verticalSpacing,
+              scale: msg.scale,
+              alignment: msg.alignment,
+              justification: msg.justification,
+              pointerDirection: msg.pointerDirection,
+            }
+          : {}),
       });
 
       writeSharingMetadata({
@@ -60,6 +71,7 @@ export function handleSharing() {
         sharedDefaultLibrary: msg.sharedDefaultLibrary,
         sharedCustomLibraries: msg.sharedCustomLibraries,
         sharedCustomConditions: msg.sharedCustomConditions,
+        sharedPositioningSettings: msg.sharedPositioningSettings,
       });
       // window.dispatchEvent(new Event("storage"));
     }

@@ -129,11 +129,19 @@ export const broadcastToolConfig = (
       sharedDefaultLibrary: sharingMetadata.sharedDefaultLibrary,
       sharedCustomLibraries: sharingMetadata.sharedCustomLibraries,
       sharedCustomConditions: sharingMetadata.sharedCustomConditions,
+      sharedPositioningSettings: sharingMetadata.sharedPositioningSettings,
       conditionLibraryName: toolMetadata.conditionLibraryName,
       customConditions: toolMetadata.customConditions,
       customConditionLibraries: toolMetadata.customConditionLibraries,
       enabledCustomConditionLibraries:
         toolMetadata.enabledCustomConditionLibraries,
+      horizontalOffset: toolMetadata.horizontalOffset,
+      verticalOffset: toolMetadata.verticalOffset,
+      verticalSpacing: toolMetadata.verticalSpacing,
+      scale: toolMetadata.scale,
+      alignment: toolMetadata.alignment,
+      justification: toolMetadata.justification,
+      pointerDirection: toolMetadata.pointerDirection,
     } satisfies ShareMessage);
   }
 };

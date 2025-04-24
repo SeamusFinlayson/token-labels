@@ -102,82 +102,85 @@ export function SettingsMenu({
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
             Custom Condition Libraries
           </div>
-          {!sharingMetadata.isHost && sharingMetadata.sharedCustomLibraries ? (
-            <div>Controlled by GM</div>
-          ) : (
-            <div className="space-y-2">
-              {toolMetadata.customConditionLibraries.map((library) => (
-                <div
-                  key={library.name}
-                  className="grid grid-cols-[1fr_36px] items-center gap-2"
-                >
-                  <Button
-                    variant={"secondary"}
-                    className="grid grid-cols-[20px_1fr_0px] gap-2 p-2"
-                    onClick={
-                      toolMetadata.enabledCustomConditionLibraries.includes(
-                        library.name,
-                      )
-                        ? () =>
-                            updateToolMetadata({
-                              ...toolMetadata,
-                              enabledCustomConditionLibraries:
-                                toolMetadata.enabledCustomConditionLibraries.filter(
-                                  (val) => val !== library.name,
-                                ),
-                            })
-                        : () =>
-                            updateToolMetadata({
-                              ...toolMetadata,
-                              enabledCustomConditionLibraries: [
-                                ...toolMetadata.enabledCustomConditionLibraries,
-                                library.name,
-                              ],
-                            })
-                    }
+          <div className="space-y-2">
+            {!sharingMetadata.isHost &&
+            sharingMetadata.sharedCustomLibraries ? (
+              <div>Controlled by GM</div>
+            ) : (
+              <>
+                {toolMetadata.customConditionLibraries.map((library) => (
+                  <div
+                    key={library.name}
+                    className="grid grid-cols-[1fr_36px] items-center gap-2"
                   >
-                    <div>
-                      <IconFadeWrapper>
-                        {toolMetadata.enabledCustomConditionLibraries.includes(
+                    <Button
+                      variant={"secondary"}
+                      className="grid grid-cols-[20px_1fr_0px] gap-2 p-2"
+                      onClick={
+                        toolMetadata.enabledCustomConditionLibraries.includes(
                           library.name,
-                        ) ? (
-                          <CircleCheckIcon />
-                        ) : (
-                          <CircleIcon />
-                        )}
-                      </IconFadeWrapper>
-                    </div>
+                        )
+                          ? () =>
+                              updateToolMetadata({
+                                ...toolMetadata,
+                                enabledCustomConditionLibraries:
+                                  toolMetadata.enabledCustomConditionLibraries.filter(
+                                    (val) => val !== library.name,
+                                  ),
+                              })
+                          : () =>
+                              updateToolMetadata({
+                                ...toolMetadata,
+                                enabledCustomConditionLibraries: [
+                                  ...toolMetadata.enabledCustomConditionLibraries,
+                                  library.name,
+                                ],
+                              })
+                      }
+                    >
+                      <div>
+                        <IconFadeWrapper>
+                          {toolMetadata.enabledCustomConditionLibraries.includes(
+                            library.name,
+                          ) ? (
+                            <CircleCheckIcon />
+                          ) : (
+                            <CircleIcon />
+                          )}
+                        </IconFadeWrapper>
+                      </div>
 
-                    <div className="truncate text-left text-sm">
-                      {library.name}
-                    </div>
-                  </Button>
-                  <Button
-                    variant={"destructive"}
-                    onClick={() => {
-                      updateToolMetadata({
-                        ...toolMetadata,
-                        customConditionLibraries:
-                          toolMetadata.customConditionLibraries.filter(
-                            (val) => val.name !== library.name,
-                          ),
-                      });
-                    }}
-                  >
-                    <IconFadeWrapper>
-                      <Trash2Icon />
-                    </IconFadeWrapper>
-                  </Button>
+                      <div className="truncate text-left text-sm">
+                        {library.name}
+                      </div>
+                    </Button>
+                    <Button
+                      variant={"destructive"}
+                      onClick={() => {
+                        updateToolMetadata({
+                          ...toolMetadata,
+                          customConditionLibraries:
+                            toolMetadata.customConditionLibraries.filter(
+                              (val) => val.name !== library.name,
+                            ),
+                        });
+                      }}
+                    >
+                      <IconFadeWrapper>
+                        <Trash2Icon />
+                      </IconFadeWrapper>
+                    </Button>
+                  </div>
+                ))}
+                <div className="flex justify-start gap-2">
+                  <UploadButton
+                    toolMetadata={toolMetadata}
+                    setToolMetadata={updateToolMetadata}
+                  />
                 </div>
-              ))}
-              <div className="flex justify-start gap-2">
-                <UploadButton
-                  toolMetadata={toolMetadata}
-                  setToolMetadata={updateToolMetadata}
-                />
-              </div>
-            </div>
-          )}
+              </>
+            )}
+          </div>
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
             Custom Conditions (click to delete)
@@ -243,7 +246,143 @@ export function SettingsMenu({
           </div>
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
-            Library Sharing
+            Positioning and Scale
+          </div>
+          <div className="space-y-2">
+            {!sharingMetadata.isHost &&
+            sharingMetadata.sharedCustomLibraries ? (
+              <div>Controlled by GM</div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <Input
+                    label="Horizontal Offset (px)"
+                    Icon={<MoveHorizontalIcon />}
+                    value={toolMetadata.horizontalOffset}
+                    onUpdate={(target) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        horizontalOffset: parseStringForNumber(target.value, {
+                          fallback: defaultToolMetadata.horizontalOffset,
+                        }),
+                      })
+                    }
+                  />
+                  <Input
+                    label="Vertical Offset (px)"
+                    Icon={<MoveVerticalIcon />}
+                    value={toolMetadata.verticalOffset}
+                    onUpdate={(target) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        verticalOffset: parseStringForNumber(target.value, {
+                          fallback: defaultToolMetadata.verticalOffset,
+                        }),
+                      })
+                    }
+                  />
+                  <Input
+                    label="Vertical Spacing"
+                    Icon={<BetweenHorizontalStartIcon />}
+                    value={toolMetadata.verticalSpacing}
+                    onUpdate={(target) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        verticalSpacing: parseStringForNumber(target.value, {
+                          fallback: defaultToolMetadata.verticalSpacing,
+                        }),
+                      })
+                    }
+                  />
+                  <Input
+                    label="Scale"
+                    Icon={<ScalingIcon />}
+                    value={toolMetadata.scale}
+                    onUpdate={(target) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        scale: parseStringForNumber(target.value, {
+                          fallback: defaultToolMetadata.scale,
+                          min: 0.2,
+                        }),
+                      })
+                    }
+                  />
+                  <ToggleButtonGroup
+                    label=" Alignment"
+                    buttons={[
+                      { value: "LEFT", icon: <AlignStartVerticalIcon /> },
+                      { value: "CENTER", icon: <AlignCenterVerticalIcon /> },
+                      { value: "RIGHT", icon: <AlignEndVerticalIcon /> },
+                    ]}
+                    value={toolMetadata.alignment}
+                    onChange={(value) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        alignment: value as "LEFT" | "RIGHT" | "CENTER",
+                      })
+                    }
+                  />
+                  <ToggleButtonGroup
+                    label="Justification"
+                    buttons={[
+                      { value: "TOP", icon: <AlignVerticalJustifyStartIcon /> },
+                      {
+                        value: "CENTER",
+                        icon: <AlignVerticalJustifyCenterIcon />,
+                      },
+                      {
+                        value: "BOTTOM",
+                        icon: <AlignVerticalJustifyEndIcon />,
+                      },
+                    ]}
+                    value={toolMetadata.justification}
+                    onChange={(value) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        justification: value as "CENTER" | "TOP" | "BOTTOM",
+                      })
+                    }
+                  />
+                  <ToggleButtonGroup
+                    label="Pointer Direction"
+                    buttons={[
+                      { value: "LEFT", icon: <ArrowLeftToLineIcon /> },
+                      { value: "RIGHT", icon: <ArrowRightToLineIcon /> },
+                      { value: "UP", icon: <ArrowUpToLineIcon /> },
+                      { value: "DOWN", icon: <ArrowDownToLineIcon /> },
+                    ]}
+                    value={toolMetadata.pointerDirection}
+                    onChange={(value) =>
+                      updateToolMetadata({
+                        ...toolMetadata,
+                        pointerDirection: value as
+                          | "LEFT"
+                          | "RIGHT"
+                          | "UP"
+                          | "DOWN",
+                      })
+                    }
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    updateToolMetadata({
+                      ...toolMetadata,
+                      ...defaultPositioningSettings,
+                    })
+                  }
+                >
+                  <div></div>
+                  Restore Defaults
+                </Button>
+              </>
+            )}
+          </div>
+
+          <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
+            Settings Sharing
           </div>
           <div className="wrap space-y-2">
             {sharingMetadata.isHost ? (
@@ -310,6 +449,37 @@ export function SettingsMenu({
                     <div>Share Custom Libraries</div>
                   </Button>
                 )}
+                {sharingMetadata.sharedPositioningSettings ? (
+                  <Button
+                    variant={"active"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...sharingMetadata,
+                        sharedPositioningSettings: false,
+                      })
+                    }
+                  >
+                    <StopCircleIcon />
+                    <div>Stop Sharing Positioning and Scale</div>
+                  </Button>
+                ) : (
+                  <Button
+                    variant={"default"}
+                    size={"sm"}
+                    onClick={() =>
+                      updateSharingMetadata({
+                        ...(sharingMetadata
+                          ? sharingMetadata
+                          : defaultSharingMetadata),
+                        sharedPositioningSettings: true,
+                      })
+                    }
+                  >
+                    <PlayCircleIcon />
+                    <div>Share Positioning and Scale</div>
+                  </Button>
+                )}
                 {playerRole === "GM" && (
                   <Button
                     variant={"default"}
@@ -366,124 +536,6 @@ export function SettingsMenu({
                 </Button>
               </>
             )}
-          </div>
-
-          <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
-            Positioning and Scale
-          </div>
-          <div className="space-y-2">
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <Input
-                label="Horizontal Offset (px)"
-                Icon={<MoveHorizontalIcon />}
-                value={toolMetadata.horizontalOffset}
-                onUpdate={(target) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    horizontalOffset: parseStringForNumber(target.value, {
-                      fallback: defaultToolMetadata.horizontalOffset,
-                    }),
-                  })
-                }
-              />
-              <Input
-                label="Vertical Offset (px)"
-                Icon={<MoveVerticalIcon />}
-                value={toolMetadata.verticalOffset}
-                onUpdate={(target) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    verticalOffset: parseStringForNumber(target.value, {
-                      fallback: defaultToolMetadata.verticalOffset,
-                    }),
-                  })
-                }
-              />
-              <Input
-                label="Vertical Spacing"
-                Icon={<BetweenHorizontalStartIcon />}
-                value={toolMetadata.verticalSpacing}
-                onUpdate={(target) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    verticalSpacing: parseStringForNumber(target.value, {
-                      fallback: defaultToolMetadata.verticalSpacing,
-                    }),
-                  })
-                }
-              />
-              <Input
-                label="Scale"
-                Icon={<ScalingIcon />}
-                value={toolMetadata.scale}
-                onUpdate={(target) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    scale: parseStringForNumber(target.value, {
-                      fallback: defaultToolMetadata.scale,
-                      min: 0.2,
-                    }),
-                  })
-                }
-              />
-              <ToggleButtonGroup
-                label=" Alignment"
-                buttons={[
-                  { value: "LEFT", icon: <AlignStartVerticalIcon /> },
-                  { value: "CENTER", icon: <AlignCenterVerticalIcon /> },
-                  { value: "RIGHT", icon: <AlignEndVerticalIcon /> },
-                ]}
-                value={toolMetadata.alignment}
-                onChange={(value) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    alignment: value as "LEFT" | "RIGHT" | "CENTER",
-                  })
-                }
-              />
-              <ToggleButtonGroup
-                label="Justification"
-                buttons={[
-                  { value: "TOP", icon: <AlignVerticalJustifyStartIcon /> },
-                  { value: "CENTER", icon: <AlignVerticalJustifyCenterIcon /> },
-                  { value: "BOTTOM", icon: <AlignVerticalJustifyEndIcon /> },
-                ]}
-                value={toolMetadata.justification}
-                onChange={(value) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    justification: value as "CENTER" | "TOP" | "BOTTOM",
-                  })
-                }
-              />
-              <ToggleButtonGroup
-                label="Pointer Direction"
-                buttons={[
-                  { value: "LEFT", icon: <ArrowLeftToLineIcon /> },
-                  { value: "RIGHT", icon: <ArrowRightToLineIcon /> },
-                  { value: "UP", icon: <ArrowUpToLineIcon /> },
-                  { value: "DOWN", icon: <ArrowDownToLineIcon /> },
-                ]}
-                value={toolMetadata.pointerDirection}
-                onChange={(value) =>
-                  updateToolMetadata({
-                    ...toolMetadata,
-                    pointerDirection: value as "LEFT" | "RIGHT" | "UP" | "DOWN",
-                  })
-                }
-              />
-            </div>
-            <Button
-              size="sm"
-              onClick={() =>
-                updateToolMetadata({
-                  ...toolMetadata,
-                  ...defaultPositioningSettings,
-                })
-              }
-            >
-              Restore Defaults
-            </Button>
           </div>
         </div>
       </ScrollArea>

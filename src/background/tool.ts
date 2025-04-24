@@ -140,7 +140,8 @@ export function createMode() {
 
         if (toolMetadata.condition === "") {
           OBR.scene.items.addItems([...labelAttachments]);
-          OBR.notification.close(lastNotificationId);
+          if (lastNotificationId !== "")
+            OBR.notification.close(lastNotificationId);
           lastNotificationId = await OBR.notification.show(
             `${index} label${index === 1 ? "" : "s"} reorganized.`,
           );

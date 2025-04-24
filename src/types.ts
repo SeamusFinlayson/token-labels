@@ -68,6 +68,7 @@ export type SharingMetadata = {
   sharedDefaultLibrary: boolean;
   sharedCustomLibraries: boolean;
   sharedCustomConditions: boolean;
+  sharedPositioningSettings: boolean;
 };
 
 export function isSharingMetadata(value: unknown): value is SharingMetadata {
@@ -91,6 +92,7 @@ export const defaultSharingMetadata: SharingMetadata = {
   sharedDefaultLibrary: false,
   sharedCustomLibraries: false,
   sharedCustomConditions: false,
+  sharedPositioningSettings: false,
 };
 
 export type ShareMessage = {
@@ -98,8 +100,9 @@ export type ShareMessage = {
   sharedDefaultLibrary: boolean;
   sharedCustomLibraries: boolean;
   sharedCustomConditions: boolean;
+  sharedPositioningSettings: boolean;
   conditionLibraryName: string;
   customConditions: string[];
   customConditionLibraries: ConditionLibrary[];
   enabledCustomConditionLibraries: string[];
-};
+} & PositioningSettings;
