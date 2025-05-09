@@ -2,7 +2,7 @@
 title: Token Labels
 description: Quickly annotate tokens using label libraries or one-off labels
 author: Seamus Finlayson
-image: https://github.com/SeamusFinlayson/condition-labels/blob/main/docs/HeroImage.png
+image: https://raw.githubusercontent.com/SeamusFinlayson/condition-labels/refs/heads/main/docs/HeroImage.png
 icon: https://condition-labels.onrender.com/tags.svg
 tags:
   - tool

@@ -1,6 +1,6 @@
 # Condition Labels
 
-![Hero Image](https://github.com/SeamusFinlayson/condition-labels/blob/main/docs/HeroImage.png)
+![Hero Image](https://raw.githubusercontent.com/SeamusFinlayson/condition-labels/refs/heads/main/docs/HeroImage.png)
 
 _Quickly annotate tokens using label libraries or one-off labels_
 
