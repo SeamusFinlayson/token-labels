@@ -20,6 +20,10 @@ To **delete** an label, click it and then click delete.
 
 Players with GM access can share their default library, custom libraries, and label positioning and scale. Open the settings tab in the labels menu, scroll down to _Settings Sharing_ and click _Share from This Device_. You can then chose which settings you want to override and which you want to let your players control. After that your settings will be streamed and synced to your players automatically as long as you are in the Owlbear Rodeo Room, there is a sync manually button in case the extension has any hiccups.
 
+## Making Custom Label Libraries
+
+I put together a code sandbox to help you generate and format custom label libraries: https://codesandbox.io/p/sandbox/jv7ftc?file=%2Fsrc%2FmyConditionLibrary.ts%3A8%2C47
+
 ## Feature Requests
 
 I may accept feature requests but - as I have limited time and development plans of my own - being a paid member on [Patreon](https://www.patreon.com/SeamusFinlayson) is your best path to getting a feature implemented.
