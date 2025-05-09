@@ -100,7 +100,7 @@ export function SettingsMenu({
           </div>
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
-            Custom Condition Libraries
+            Custom Libraries
           </div>
           <div className="space-y-2">
             {!sharingMetadata.isHost &&
@@ -183,7 +183,7 @@ export function SettingsMenu({
           </div>
 
           <div className="mb-1 text-xs font-medium text-black/[0.54] dark:text-white/[.67]">
-            Custom Conditions (click to delete)
+            Custom Labels (click to delete)
           </div>
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">

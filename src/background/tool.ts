@@ -45,7 +45,7 @@ export function createTool() {
     icons: [
       {
         icon: icon,
-        label: "Condition Labels",
+        label: "Label",
       },
     ],
     onClick: () => {

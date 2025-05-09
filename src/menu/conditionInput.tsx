@@ -46,7 +46,7 @@ export function ConditionInput({
           <input
             ref={inputRef}
             className="hover:bg-600 dark:placeholder-mirage-100/70 w-full shrink grow p-2 pr-0 pl-4 placeholder-black/[0.54] outline-hidden transition-all group-focus-within:pl-2"
-            placeholder="Type condition..."
+            placeholder="Type label..."
             value={value}
             onChange={(e) => {
               onChange(e.target.value);

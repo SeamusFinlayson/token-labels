@@ -1,10 +1,10 @@
 {
-  "name": "Condition Labels",
+  "name": "Token Labels",
   "version": "0.0.6",
   "manifest_version": 1,
   "author": "Seamus Finlayson",
   "homepage_url": "https://github.com/SeamusFinlayson/condition-labels",
   "icon": "/tags.svg",
   "background_url": "/src/background/background.html",
-  "description": "Quickly add condition labels to tokens"
+  "description": "Quickly annotate tokens using label libraries or one-off labels"
 }
