@@ -1,4 +1,4 @@
-# Condition Labels
+# Token Labels
 
 ![Hero Image](https://raw.githubusercontent.com/SeamusFinlayson/condition-labels/refs/heads/main/docs/HeroImage.png)
 
