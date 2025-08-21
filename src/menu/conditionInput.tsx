@@ -51,6 +51,7 @@ export function ConditionInput({
             onChange={(e) => {
               onChange(e.target.value);
             }}
+            maxLength={40}
             // autoFocus
           />
           {value !== "" && (
