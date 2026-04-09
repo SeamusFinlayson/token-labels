@@ -218,7 +218,7 @@ function getLabelPosition(
   toolMetadata: ToolMetadata,
 ): Vector2 {
   const origin = Math2.add(targetPosition, {
-    x: width * alignmentMultiplier[toolMetadata.alignment],
+    x: Math.abs(width) * alignmentMultiplier[toolMetadata.alignment],
     y: height * justificationMultiplier[toolMetadata.justification],
   });
 
